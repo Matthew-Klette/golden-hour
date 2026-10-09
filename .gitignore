@@ -7,3 +7,4 @@ video/tmp/
 video/cues.json
 video/.cap-*
 video/.frame-*
+video/frames-stale-*/
