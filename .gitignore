@@ -4,3 +4,6 @@ video/frames/
 video/out/
 video/tmp/
 .DS_Store
+video/cues.json
+video/.cap-*
+video/.frame-*
