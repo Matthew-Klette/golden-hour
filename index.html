@@ -2357,7 +2357,7 @@ window.Techno = (() => {
     if (CAPTURE) {
       // One exact moment of the intro, CSS loops included; or (events mode) the whole run, to log its sound cues.
       const at = CAPTURE.events ? tl.duration() : Math.min(CAPTURE.t || 0, tl.duration());
-      tl.seek(at, false);
+      tl.seek(Math.max(at, 0.001), false); // a seek to exactly 0 doesn't fire the opening scene cut
       captureNow = CAPTURE.events ? at : CAPTURE.t || 0;
       if (document.getAnimations) document.getAnimations().forEach((anim) => { anim.pause(); anim.currentTime = captureNow * 1000; });
       if (graph.active) drawGraph();
