@@ -8,3 +8,4 @@ video/cues.json
 video/.cap-*
 video/.frame-*
 video/frames-stale-*/
+video/index.frozen.html

@@ -2,7 +2,7 @@
 
 Kinetic intro and catalog page for Matt Klette: measured type, an n8n run, a Claude chat, an Obsidian graph that becomes the night sky, and a sunset with the name.
 
-- `index.html` — the whole page (GSAP timeline, Web Audio soundtrack synthesized live, canvas graph). The intro is one fixed 1920×1080 design scaled to fit every screen (identical on all devices); starting it goes full screen, landscape on phones where allowed. Sound is always on.
+- `index.html` — the whole page (GSAP timeline, Web Audio soundtrack synthesized live, canvas graph). The intro fills the screen on every device with the same desktop design (no phone-only layouts). Sound is always on.
 - `build-variants.sh` — writes slow / regular / fast tempo cuts into `dist/`.
 
 ## Video export

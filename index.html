@@ -33,6 +33,8 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
+/* 16px up to 1920 x 1080; bigger screens scale everything up with them (32px at 4K), limited by height on ultrawides. */
+html { font-size: max(16px, min(0.8333vw, calc(1.4815 * var(--vh)))); }
 /* No visible scrollbar: a classic one narrows the stage and pulls every centred scene left of the screen's centre. Scrolling still works. */
 html { scrollbar-width: none; }
 html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; }
@@ -52,31 +54,16 @@ a { color: inherit; }
 :focus-visible { outline: 0.125rem solid var(--copper); outline-offset: 0.1875rem; }
 
 /* ---------- Intro ---------- */
-.stage-wrap { position: relative; height: calc(100 * var(--vh)); height: calc(100 * var(--svh)); overflow: hidden; background: var(--ink); }
-/* The intro is one fixed 1920 x 1080 design, scaled as a whole to fit the screen, so it looks the same on every device.
-   Inside it, the viewport units and the gutter are the design's own. */
-.stage {
-  position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; overflow: hidden; background: var(--ink);
-  transform: translate(-50%, -50%) scale(var(--stage-scale, 1)); transform-origin: 50% 50%;
-  --vw: 19.2px; --vh: 10.8px; --svh: 10.8px; --gutter: 3rem; font-size: 1rem;
-}
-/* Upright phones are the one case where a 16:9 picture can't fill the screen: say how to get it full screen. */
-@media (orientation: portrait) and (max-width: 900px) {
-  .stage-wrap::after {
-    content: "Turn your phone sideways for full screen"; position: absolute; left: 0; right: 0; bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-    text-align: center; font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist);
-  }
-  html.capture .stage-wrap::after { content: none; }
-}
+.stage { position: relative; height: calc(100 * var(--vh)); height: calc(100 * var(--svh)); min-height: 17.5rem; overflow: hidden; background: var(--ink); }
 /* One track the size of the screen, so a child's % width resolves against the screen, not its own content. */
 .scene { position: absolute; inset: 0; display: grid; grid-template: minmax(0, 1fr) / minmax(0, 1fr); place-items: center; visibility: hidden; opacity: 0; overflow: hidden; }
 .scene.is-rest { visibility: visible; opacity: 1; }
 .scene.ink { background: var(--ink); color: var(--paper); }
 .scene.paper { background: var(--paper); color: var(--ink); }
 
-.big { font-size: clamp(5rem, calc(17 * var(--vw)), 13rem); font-weight: 600; line-height: 1; letter-spacing: -0.04em; }
-.mid { font-size: clamp(3rem, calc(9 * var(--vw)), 7rem); font-weight: 300; line-height: 1; letter-spacing: -0.035em; }
-.line { font-size: clamp(1.9rem, calc(6 * var(--vw)), 4.4rem); line-height: 1.1; letter-spacing: -0.03em; }
+.big { font-size: clamp(5rem, 17vw, 13rem); font-weight: 600; line-height: 1; letter-spacing: -0.04em; }
+.mid { font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; line-height: 1; letter-spacing: -0.035em; }
+.line { font-size: clamp(1.9rem, 6vw, 4.4rem); line-height: 1.1; letter-spacing: -0.03em; }
 .mono { font-family: var(--font-mono); font-size: 0.75rem; color: var(--mist); font-variant-numeric: tabular-nums; }
 
 .controls {
@@ -122,14 +109,14 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .hi { display: inline-flex; text-shadow: -3px 0 0 color-mix(in srgb, var(--copper) 70%, transparent); }
 .hi span { display: inline-block; }
 .guide { position: absolute; border: 0 dashed color-mix(in srgb, var(--paper) 45%, transparent); pointer-events: none; }
-.guide.h { left: calc(-100 * var(--vw)); width: calc(200 * var(--vw)); border-top-width: 0.0625rem; }
+.guide.h { left: -100vw; width: 200vw; border-top-width: 0.0625rem; }
 .guide.v { top: calc(-100 * var(--vh)); height: calc(200 * var(--vh)); border-left-width: 0.0625rem; }
 .dim { position: absolute; white-space: nowrap; }
 .readout { position: absolute; left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); line-height: 1.7; }
 .readout b { color: var(--copper); font-weight: 500; }
 
 /* 2–3. type scenes: "I'm" huge on ink, "Your" on paper. */
-.im-word { color: var(--paper); font-size: clamp(7rem, calc(26 * var(--vw)), 20rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; white-space: nowrap; }
+.im-word { color: var(--paper); font-size: clamp(7rem, 26vw, 20rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; white-space: nowrap; }
 .im-word .cursor { display: inline-block; width: 0.09em; height: 0.74em; background: var(--copper); vertical-align: -0.02em; margin-right: 0.03em; }
 .your-word { color: var(--ink); white-space: nowrap; }
 .your-word span { display: inline-block; }
@@ -148,12 +135,12 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .badge > * { position: absolute; inset: 0; }
 
 /* 5. phrases */
-.phrase { position: absolute; white-space: nowrap; max-width: calc(calc(100 * var(--vw)) - 2 * var(--gutter)); }
+.phrase { position: absolute; white-space: nowrap; max-width: calc(100vw - 2 * var(--gutter)); }
 .phrase.line { font-weight: 300; }
 .phrase.line b { font-weight: 700; color: var(--copper); }
 .phrase.big { font-weight: 700; }
-.phrase.mid { font-weight: 300; font-size: clamp(2.6rem, calc(10 * var(--vw)), 8rem); }
-.phrase.is-mono { font: 600 clamp(4rem, calc(15 * var(--vw)), 11rem)/1 var(--font-mono); letter-spacing: 0.33em; margin-right: -0.33em; color: var(--copper); }
+.phrase.mid { font-weight: 300; font-size: clamp(2.6rem, 10vw, 8rem); }
+.phrase.is-mono { font: 600 clamp(4rem, 15vw, 11rem)/1 var(--font-mono); letter-spacing: 0.33em; margin-right: -0.33em; color: var(--copper); }
 /* Narrow colon so the stamp's digits sit where the flip cards' digits will. */
 .phrase.is-mono .colon-tight { letter-spacing: 0; margin: 0 -0.135em; }
 /* The final stamp uses the lock screen's clock face, so the phone can zoom out from it. */
@@ -297,7 +284,7 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 /* 8. Claude chat */
 .chat { width: min(41.25rem, calc(100% - 2 * var(--gutter))); display: grid; gap: 1.1rem; }
 #s-chat .app-cap { position: static; max-width: none; margin-bottom: 0.6rem; }
-.msg { border-radius: 1rem; padding: 1rem 1.2rem; font-size: clamp(0.9375rem, calc(1.6 * var(--vw)), 1.0625rem); line-height: 1.55; }
+.msg { border-radius: 1rem; padding: 1rem 1.2rem; font-size: clamp(0.9375rem, 1.6vw, 1.0625rem); line-height: 1.55; }
 .msg p { margin: 0.35rem 0 0; white-space: pre-wrap; }
 .msg code { font: 0.9em var(--font-mono); color: var(--copper-text); }
 .msg-in { background: var(--ink); color: var(--paper); justify-self: end; max-width: 88%; }
@@ -320,10 +307,12 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 /* 9. vault */
 .vault {
   width: min(73.75rem, calc(100% - 2 * var(--gutter))); height: min(38.75rem, calc(100% - 9rem));
-  position: relative; display: grid; grid-template-columns: 12.5rem minmax(0, 1fr);
+  position: relative; display: grid; grid-template-columns: clamp(6.5rem, 17%, 12.5rem) minmax(0, 1fr);
   background: var(--flap); border: 0.0625rem solid color-mix(in srgb, var(--paper) 14%, transparent); border-radius: 0.875rem; overflow: hidden;
 }
 .tree { padding: 1.1rem 0.9rem; border-right: 0.0625rem solid color-mix(in srgb, var(--paper) 10%, transparent); line-height: 2; font-size: 0.75rem; color: var(--mist); }
+/* File names stay on one line and trail off when the list is narrow, as in Obsidian. */
+.tree > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-head { color: var(--paper); font-weight: 500; margin-bottom: 0.3rem; }
 .t-dir::before { content: "▾ "; }
 .t-file { padding-left: 1.1rem; border-radius: 0.375rem; }
@@ -350,13 +339,13 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 #s-vault .app-cap { top: auto; bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); }
 
 /* 10. the copper point becomes a setting sun over the sea; the name comes in beside it */
-#s-final { place-items: stretch; --horizon: 64%; --sun: min(calc(46 * var(--vh)), calc(36 * var(--vw))); --sun-x: 70%; }
+#s-final { place-items: stretch; --horizon: 64%; --sun: min(calc(46 * var(--vh)), 36vw); --sun-x: 70%; }
 .sky {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, var(--ink) 0%, var(--dusk-plum) 32%, var(--dusk-ember) 54%, var(--copper) calc(var(--horizon) - 0.5%), var(--sea) var(--horizon), var(--ink) 100%);
 }
 .sun-glow {
-  position: absolute; left: var(--sun-x); top: var(--horizon); width: min(calc(130 * var(--vh)), calc(110 * var(--vw))); aspect-ratio: 1; max-width: none;
+  position: absolute; left: var(--sun-x); top: var(--horizon); width: min(calc(130 * var(--vh)), 110vw); aspect-ratio: 1; max-width: none;
   transform: translate(-50%, -50%); border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--sun-hot) 34%, transparent) 0%, color-mix(in srgb, var(--copper) 16%, transparent) 30%, transparent 62%);
 }
@@ -384,13 +373,19 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .sun-time b { color: var(--copper); font-weight: 500; }
 .nameplate {
   position: absolute; left: var(--gutter); top: 50%; transform: translateY(-50%);
-  color: var(--paper); max-width: min(calc(92 * var(--vw)), 40rem);
+  color: var(--paper); max-width: min(40rem, calc(var(--sun-x) - var(--sun) * 0.5 - 2 * var(--gutter))); /* always left of the sun */
 }
-.nameplate h1 { margin: 0; font-size: clamp(3rem, calc(9 * var(--vw)), 7rem); font-weight: 300; letter-spacing: -0.04em; line-height: 0.95; }
+.nameplate h1 { margin: 0; font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; letter-spacing: -0.04em; line-height: 0.95; }
 .nameplate h1 b { font-weight: 700; }
 .nameplate p { margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.04em; color: color-mix(in srgb, var(--paper) 82%, transparent); line-height: 1.8; }
 .nameplate a { color: var(--copper); text-decoration: none; display: inline-block; margin-top: 1.4rem; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; }
 .nameplate a:hover { text-decoration: underline; text-underline-offset: 0.25rem; }
+
+/* Very narrow phones: the note clears the graph button. */
+@media (max-width: 420px) {
+  .note { padding-top: 3.4rem; }
+}
+
 
 /* ---------- Catalog page ---------- */
 .page { padding-inline: var(--gutter); padding-block: 0 4rem; max-width: 73.75rem; margin-inline: auto; }
@@ -438,8 +433,7 @@ button.copy:hover { background: var(--paper); }
 <!-- The Claude mark (Simple Icons), shared by the n8n node and the chat header. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="claudeMark" viewBox="0 0 24 24"><path fill="currentColor" d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></symbol></svg>
 
-<header class="stage-wrap" id="stageWrap">
-<div class="stage" id="stage">
+<header class="stage" id="stage">
 
   <!-- 1. measured Hi -->
   <div class="scene ink" id="s-hi" aria-hidden="true">
@@ -619,11 +613,6 @@ button.copy:hover { background: var(--paper); }
     </div>
   </div>
 
-  <div class="morph" id="morph" aria-hidden="true"></div>
-  <div class="ripple" id="ripple" aria-hidden="true"></div>
-  <svg class="pointer" id="pointer" viewBox="0 0 26 32" aria-hidden="true"><path d="M2 2v23l6-5.5 4.2 9 3.6-1.6-4.1-8.9H20z" fill="var(--ink)" stroke="var(--paper)" stroke-width="1.6" stroke-linejoin="round"/></svg>
-</div>
-
   <button type="button" class="playpause" id="playBtn" data-state="ready" aria-label="Start the intro with sound">
     <span class="pp-ring" aria-hidden="true">
       <svg class="pp-play" viewBox="0 0 24 24"><path d="M8 5.5 L19 12 L8 18.5 Z" fill="currentColor"/></svg>
@@ -632,6 +621,10 @@ button.copy:hover { background: var(--paper); }
     <span class="pp-label" id="ppLabel">Click here to start</span>
     <span class="pp-sub mono" id="ppSub">intro · 50s · sound on</span>
   </button>
+
+  <div class="morph" id="morph" aria-hidden="true"></div>
+  <div class="ripple" id="ripple" aria-hidden="true"></div>
+  <svg class="pointer" id="pointer" viewBox="0 0 26 32" aria-hidden="true"><path d="M2 2v23l6-5.5 4.2 9 3.6-1.6-4.1-8.9H20z" fill="var(--ink)" stroke="var(--paper)" stroke-width="1.6" stroke-linejoin="round"/></svg>
 
   <div class="controls">
     <button type="button" id="skipBtn">Skip intro</button>
@@ -1368,29 +1361,12 @@ window.Techno = (() => {
     gsap.ticker.add((t) => lenis.raf(t * 1000));
   }
 
-  /* ---------- Stage: one 1920 x 1080 design, scaled to fit the screen ---------- */
-  const DESIGN_W = 1920, DESIGN_H = 1080;
-  const stage = $('stage'), stageWrap = $('stageWrap');
-  let W = DESIGN_W, Ht = DESIGN_H, stageScale = 1;
-  const layoutStage = () => {
-    stageScale = Math.min(stageWrap.clientWidth / DESIGN_W, stageWrap.clientHeight / DESIGN_H) || 1;
-    stage.style.setProperty('--stage-scale', stageScale);
-    W = stage.clientWidth; Ht = stage.clientHeight;
-  };
-  layoutStage();
-  window.addEventListener('resize', layoutStage);
-  // A box in design pixels: what an element measures inside the unscaled 1920 x 1080 stage.
-  const box = (el) => {
-    const r = el.getBoundingClientRect(), k = stageScale;
-    return { left: r.left / k, top: r.top / k, width: r.width / k, height: r.height / k, bottom: r.bottom / k };
-  };
-
   /* ---------- Measurement guides around the Hi ---------- */
   const hi = $('hi'), H = $('hH'), I = $('hI');
   const guideState = { t: 0 };
   let boxA = null, boxB = null;
   const capBox = (el) => {
-    const w = box(hi), e = box(el);
+    const w = hi.getBoundingClientRect(), e = el.getBoundingClientRect();
     const top = e.height * 0.16, bottom = e.height * 0.14;
     return { x: e.left - w.left, y: top, w: e.width, h: e.height - top - bottom };
   };
@@ -1409,10 +1385,14 @@ window.Techno = (() => {
   };
   const measureGuides = () => {
     boxA = capBox(H);
-    boxB = { x: 0, y: boxA.y, w: box(hi).width, h: boxA.h };
+    boxB = { x: 0, y: boxA.y, w: hi.getBoundingClientRect().width, h: boxA.h };
     drawGuides();
   };
 
+  /* ---------- Stage size ---------- */
+  const stage = $('stage');
+  let W = 0, Ht = 0;
+  const layoutStage = () => { W = stage.clientWidth; Ht = stage.clientHeight; };
 
   /* ---------- Timeline ---------- */
   let skipping = false;
@@ -1452,7 +1432,7 @@ window.Techno = (() => {
   const gutterPx = () => { const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; return Math.min(3 * rem, Math.max(rem, W * 0.04)); };
   const fitPhrase = (el) => {
     el.style.fontSize = '';
-    const r = box(el), textW = Math.max(r.width, el.scrollWidth); // the box is capped by max-width; the text may not be
+    const r = el.getBoundingClientRect(), textW = Math.max(r.width, el.scrollWidth); // the box is capped by max-width; the text may not be
     if (!textW || !r.height) return;
     const k = Math.min(1, (W - 2 * gutterPx()) / textW, (Ht * PHRASE_MAX_H) / r.height);
     if (k < 1) el.style.fontSize = `${parseFloat(getComputedStyle(el).fontSize) * k * 0.98}px`;
@@ -1498,13 +1478,13 @@ window.Techno = (() => {
   };
   // A box relative to the phone's screen (the phone is at scale 1 when these are measured).
   const rectInScreen = (id) => {
-    const sc = box($('screen')), r = box($(id));
+    const sc = $('screen').getBoundingClientRect(), r = $(id).getBoundingClientRect();
     return { left: r.left - sc.left, top: r.top - sc.top, width: r.width, height: r.height };
   };
   // The phone transform that pushes the camera into the phone until its screen fills the stage.
   const pushZoom = { x: 0, y: 0, scale: 1, origin: '50% 50%' };
   const measurePush = () => {
-    const st = box(stage), ph = box($('phone')), sc = box($('screen'));
+    const st = stage.getBoundingClientRect(), ph = $('phone').getBoundingClientRect(), sc = $('screen').getBoundingClientRect();
     const cx = sc.left + sc.width / 2, cy = sc.top + sc.height / 2;
     pushZoom.origin = `${cx - ph.left}px ${cy - ph.top}px`;
     pushZoom.scale = Math.max(st.width / sc.width, st.height / sc.height) * 1.06;
@@ -1514,7 +1494,7 @@ window.Techno = (() => {
   const slideTravel = () => $('slider').offsetWidth - $('knob').offsetWidth - 2 * $('knob').offsetLeft;
   // A box relative to the stage, for overlays that travel between scenes.
   const rectOnStage = (id) => {
-    const st = box(stage), r = box($(id));
+    const st = stage.getBoundingClientRect(), r = $(id).getBoundingClientRect();
     return { left: r.left - st.left, top: r.top - st.top, width: r.width, height: r.height };
   };
   // The phone transform that puts its clock exactly over the last stamp: same size, same place.
@@ -1523,7 +1503,7 @@ window.Techno = (() => {
   const measureLockZoom = () => {
     const phone = $('phone');
     gsap.set(phone, { clearProps: 'transform' });
-    const ph = box(phone), lt = box($('lockTime')), st = box($('phrase'));
+    const ph = phone.getBoundingClientRect(), lt = $('lockTime').getBoundingClientRect(), st = $('phrase').getBoundingClientRect();
     const lx = lt.left + lt.width / 2, ly = lt.top + lt.height / 2;
     lockZoom.origin = `${lx - ph.left}px ${ly - ph.top}px`;
     lockZoom.scale = st.height / lt.height;
@@ -1786,7 +1766,7 @@ window.Techno = (() => {
   };
 
   const sizeCanvas = () => {
-    const c = graph.canvas, dpr = Math.min((window.devicePixelRatio || 1) * stageScale, 3);
+    const c = graph.canvas, dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = c.clientWidth, h = c.clientHeight;
     if (w === graph.w && h === graph.h && dpr === graph.dpr) return;
     graph.w = w; graph.h = h; graph.dpr = dpr;
@@ -1932,7 +1912,7 @@ window.Techno = (() => {
   // Where the real sun and horizon sit on the graph's canvas (the sunset scene is laid out, just not shown yet).
   const measureSun = () => {
     sizeCanvas();
-    const c = box(graph.canvas), s = box($('sun')), hz = box($('horizon'));
+    const c = graph.canvas.getBoundingClientRect(), s = $('sun').getBoundingClientRect(), hz = $('horizon').getBoundingClientRect();
     graph.sun = { x: s.left + s.width / 2 - c.left, y: s.top + s.height / 2 - c.top, r: s.width / 2, horizon: hz.top - c.top };
   };
 
@@ -2309,8 +2289,8 @@ window.Techno = (() => {
   };
 
   const start = () => {
-    layoutStage();
     measureGuides();
+    layoutStage();
     buildFlow();
     layoutFlow();
     buildGraph();
@@ -2334,19 +2314,7 @@ window.Techno = (() => {
     };
     audio.isPlaying = () => state === 'playing';
 
-    // Starting the intro takes the whole screen, turned sideways on phones where the browser allows it.
-    // Browsers that refuse (iPhone Safari, or a frame without fullscreen permission) just play in the page.
-    const goFullscreen = () => {
-      const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
-      if (!req || document.fullscreenElement || document.webkitFullscreenElement) return;
-      try {
-        Promise.resolve(req.call(el, { navigationUI: 'hide' }))
-          .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
-          .catch(() => { /* not allowed here: play in the page */ });
-      } catch (e) { /* not allowed here: play in the page */ }
-    };
-    document.addEventListener('fullscreenchange', layoutStage);
-    const begin = () => { goFullscreen(); setState('playing'); audio.restart(); tl.play(0); };
+    const begin = () => { setState('playing'); audio.restart(); tl.play(0); };
     const pause = () => { setState('paused'); gsap.globalTimeline.pause(); audio.pause(); };
     const resume = () => { setState('playing'); gsap.globalTimeline.resume(); audio.play(); };
     const finish = () => { setState('done'); gsap.globalTimeline.resume(); };
@@ -2358,14 +2326,14 @@ window.Techno = (() => {
 
     play.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
     // Tapping anywhere on the intro also pauses or resumes (handy on touch screens); links and buttons keep their own job.
-    stageWrap.addEventListener('click', (e) => {
+    $('stage').addEventListener('click', (e) => {
       if (e.target.closest('a, button')) return;
       toggle();
     });
     // Space pauses or resumes while the intro is on screen (buttons and links keep their own Space behaviour).
     document.addEventListener('keydown', (e) => {
       if (e.code !== 'Space' || e.target.closest('a, button, input, textarea') || state === 'done') return;
-      if (stageWrap.getBoundingClientRect().bottom < window.innerHeight * 0.5) return;
+      if ($('stage').getBoundingClientRect().bottom < window.innerHeight * 0.5) return;
       e.preventDefault();
       toggle();
     });
@@ -2384,7 +2352,7 @@ window.Techno = (() => {
       $('replayBtn').hidden = true; $('skipBtn').hidden = false;
       begin();
     });
-    window.addEventListener('resize', () => { layoutStage(); measureGuides(); layoutFlow(); });
+    window.addEventListener('resize', () => { measureGuides(); layoutStage(); layoutFlow(); });
 
     if (CAPTURE) {
       // One exact moment of the intro, CSS loops included; or (events mode) the whole run, to log its sound cues.

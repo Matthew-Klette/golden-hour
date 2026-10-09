@@ -1,12 +1,15 @@
 // Builds a self-contained capture copy of ../index.html: local GSAP and fonts (no network), no Lenis,
 // and window.CAPTURE set before any script runs. Usage: node capture-page.mjs <out.html> '<CAPTURE json>'
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const capturePage = (capture) => {
-  let html = readFileSync(join(here, '..', 'index.html'), 'utf8');
+  // A running export renders from a frozen copy (index.frozen.html) so edits to the page can't change it mid-render.
+  const frozen = join(here, 'index.frozen.html');
+  const useFrozen = existsSync(frozen) && !process.env.CAPTURE_LIVE; // CAPTURE_LIVE=1: always the current page
+  let html = readFileSync(useFrozen ? frozen : join(here, '..', 'index.html'), 'utf8');
   const swaps = [
     [/<link rel="preconnect"[^>]*>\n?/g, ''],
     [/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^"]*">/, '<link rel="stylesheet" href="vendor/fonts.css">'],
