@@ -1,0 +1,2360 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Matt Klette</title>
+<meta name="description" content="Matt Klette: analytics engineer, motion designer, creative technologist.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a self-playing kinetic-type intro (hard cuts between ink, paper and photo scenes, running through a live workflow, a Claude chat and a second-brain vault, closing on a camera aperture that opens onto the portrait), then a quiet catalog page. Single deliberate look in both themes. */
+:root {
+  --ink: #0B0E1A;
+  --paper: #F3F6F9;
+  --copper: #D4996A;
+  --copper-text: #9A5B2F;
+  --mist: #8A93A6;
+  --slate: #4A5263;
+  --rule: #D5DBE3;
+  --dusk-plum: #2A1A2E;
+  --dusk-ember: #7A3A2C;
+  --sun-hot: #FFD9A3;
+  --sun-deep: #C4553A;
+  --sea: #160F1A;
+  --flap: #1A2033;
+  --bezel: #04060C;
+  --wall-top: #0B0E1A;
+  --wall-low: #24161C;
+  --font-display: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --gutter: clamp(16px, 4vw, 48px);
+  --claude: #D97757;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+/* No visible scrollbar: a classic one narrows the stage and pulls every centred scene left of the screen's centre. Scrolling still works. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+
+/* ---------- Intro ---------- */
+.stage { position: relative; height: 100vh; height: 100svh; min-height: 520px; overflow: hidden; background: var(--ink); }
+.scene { position: absolute; inset: 0; display: grid; place-items: center; visibility: hidden; opacity: 0; overflow: hidden; }
+.scene.is-rest { visibility: visible; opacity: 1; }
+.scene.ink { background: var(--ink); color: var(--paper); }
+.scene.paper { background: var(--paper); color: var(--ink); }
+
+.big { font-size: clamp(5rem, 17vw, 13rem); font-weight: 600; line-height: 1; letter-spacing: -0.04em; }
+.mid { font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; line-height: 1; letter-spacing: -0.035em; }
+.line { font-size: clamp(1.9rem, 6vw, 4.4rem); line-height: 1.1; letter-spacing: -0.03em; }
+.mono { font-family: var(--font-mono); font-size: 12px; color: var(--mist); font-variant-numeric: tabular-nums; }
+
+.controls {
+  position: absolute; right: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); z-index: 5;
+  display: flex; gap: 0.5rem;
+}
+.controls button {
+  font: 500 12px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--paper); background: color-mix(in srgb, var(--ink) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--paper) 30%, transparent);
+  padding: 0.6rem 0.9rem; border-radius: 999px; cursor: pointer; backdrop-filter: blur(6px);
+}
+.controls button:hover { border-color: var(--copper); color: var(--copper); }
+
+/* Sound toggle: fixed, so it stays reachable while browsing the work. */
+.sound {
+  position: fixed; z-index: 20; top: calc(var(--gutter) + env(safe-area-inset-top, 0px)); right: var(--gutter);
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font: 500 12px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--paper); background: color-mix(in srgb, var(--ink) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--paper) 30%, transparent);
+  padding: 0.6rem 0.9rem; border-radius: 999px; cursor: pointer; backdrop-filter: blur(6px);
+}
+.sound:hover { border-color: var(--copper); }
+.sound[aria-pressed="true"] { border-color: var(--copper); }
+.eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.eq i { width: 2px; height: 3px; background: var(--copper); border-radius: 1px; }
+.sound[aria-pressed="true"] .eq i { animation: eq 0.5s ease-in-out infinite alternate; }
+.sound[aria-pressed="true"] .eq i:nth-child(2) { animation-delay: -0.12s; }
+.sound[aria-pressed="true"] .eq i:nth-child(3) { animation-delay: -0.3s; }
+.sound[aria-pressed="true"] .eq i:nth-child(4) { animation-delay: -0.2s; }
+@keyframes eq { from { height: 3px; } to { height: 12px; } }
+@media (prefers-reduced-motion: reduce) {
+  .sound[aria-pressed="true"] .eq i { animation: none; height: 9px; }
+}
+
+/* Centre play button. Ready and paused: solid copper call to action. Playing and done: gone. */
+.playpause {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6;
+  display: grid; justify-items: center; gap: 0.9rem;
+  background: none; border: 0; padding: 1rem; cursor: pointer; color: var(--paper); font-family: var(--font-display);
+  transition: opacity 0.25s ease;
+}
+.pp-ring {
+  width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center;
+  border: 0; background: var(--copper); color: var(--ink);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.pp-ring svg { width: 34px; height: 34px; grid-area: 1 / 1; }
+.playpause:hover .pp-ring { transform: scale(1.06); background: var(--paper); }
+.pp-label { font-size: clamp(1.1rem, 2.4vw, 1.5rem); font-weight: 600; letter-spacing: -0.01em; }
+.pp-sub { color: var(--mist); }
+.playpause .pp-pause, .playpause[data-state="playing"] .pp-play { display: none; }
+.playpause[data-state="playing"] .pp-pause { display: block; }
+.playpause[data-state="playing"], .playpause[data-state="done"] { display: none; }
+.pp-pulse { animation: pp-pulse 1.9s ease-out infinite; }
+@keyframes pp-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--copper) 55%, transparent); } 100% { box-shadow: 0 0 0 26px transparent; } }
+@media (prefers-reduced-motion: reduce) { .pp-pulse { animation: none; } }
+
+/* 1. the measured Hi */
+.hi-wrap { position: relative; }
+.hi { display: inline-flex; text-shadow: -3px 0 0 color-mix(in srgb, var(--copper) 70%, transparent); }
+.hi span { display: inline-block; }
+.guide { position: absolute; border: 0 dashed color-mix(in srgb, var(--paper) 45%, transparent); pointer-events: none; }
+.guide.h { left: -100vw; width: 200vw; border-top-width: 1px; }
+.guide.v { top: -100vh; height: 200vh; border-left-width: 1px; }
+.dim { position: absolute; white-space: nowrap; }
+.readout { position: absolute; left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); line-height: 1.7; }
+.readout b { color: var(--copper); font-weight: 500; }
+
+/* 2–3. type scenes: "I'm" huge on ink, "Your" on paper. */
+.im-word { color: var(--paper); font-size: clamp(7rem, 26vw, 20rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; white-space: nowrap; }
+.im-word .cursor { display: inline-block; width: 0.09em; height: 0.74em; background: var(--copper); vertical-align: -0.02em; margin-right: 0.03em; }
+.your-word { color: var(--ink); white-space: nowrap; }
+.your-word span { display: inline-block; }
+
+/* 4. role line */
+.roles { display: flex; align-items: baseline; justify-content: center; gap: 0.28em; position: relative; }
+.word-wrap { position: relative; display: inline-block; }
+.slot { display: inline-grid; overflow: hidden; padding-block: 0.08em 0.14em; }
+.slot > span { grid-area: 1 / 1; white-space: nowrap; }
+.slot.first { font-weight: 300; }
+.slot.first > span { justify-self: end; }
+.slot.second { font-weight: 700; }
+.slot.second > span { justify-self: start; }
+.signal { position: absolute; left: 0; bottom: -0.12em; width: 100%; height: 0.3em; overflow: visible; }
+.badge { position: absolute; top: -0.12em; left: 0; width: 0.62em; height: 0.62em; }
+.badge > * { position: absolute; inset: 0; }
+
+/* 5. phrases */
+.phrase { position: absolute; white-space: nowrap; max-width: calc(100vw - 2 * var(--gutter)); }
+.phrase.line { font-weight: 300; }
+.phrase.line b { font-weight: 700; color: var(--copper); }
+.phrase.big { font-weight: 700; }
+.phrase.mid { font-weight: 300; font-size: clamp(2.6rem, 10vw, 8rem); }
+.phrase.is-mono { font: 600 clamp(4rem, 15vw, 11rem)/1 var(--font-mono); letter-spacing: 0.33em; margin-right: -0.33em; color: var(--copper); }
+/* Narrow colon so the stamp's digits sit where the flip cards' digits will. */
+.phrase.is-mono .colon-tight { letter-spacing: 0; margin: 0 -0.135em; }
+/* The final stamp uses the lock screen's clock face, so the phone can zoom out from it. */
+.phrase.is-lock { font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; color: var(--paper); font-variant-numeric: tabular-nums; }
+.pos-c { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.pos-l { left: var(--gutter); top: 50%; transform: translateY(-50%); }
+.pos-r { right: var(--gutter); top: 50%; transform: translateY(-50%); }
+.pos-t { left: 50%; top: 18%; transform: translateX(-50%); }
+.pos-b { left: 50%; bottom: 18%; transform: translateX(-50%); }
+#s-phrase.paper .eps { color: var(--slate); }
+.eps { position: absolute; left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); }
+.eps b { color: var(--copper); font-weight: 500; }
+
+/* 6. lock screen: an iPhone-style phone, sized in ems so 1em = 1% of the phone's height */
+#s-clock { background: transparent; }
+.phone {
+  --ph: min(80svh, 700px);
+  position: relative; height: var(--ph); aspect-ratio: 9 / 19.5; font-size: calc(var(--ph) / 100);
+  padding: 1.1em; border-radius: 7em; background: var(--bezel);
+  box-shadow: 0 0 0 0.25em color-mix(in srgb, var(--paper) 14%, transparent), 0 3em 8em color-mix(in srgb, var(--bezel) 70%, transparent);
+}
+.screen {
+  position: relative; width: 100%; height: 100%; border-radius: 6em; overflow: hidden; color: var(--paper);
+  background:
+    radial-gradient(120% 60% at 50% 112%, color-mix(in srgb, var(--copper) 70%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--wall-top) 0%, var(--ink) 55%, var(--wall-low) 100%);
+}
+.island { position: absolute; top: 1.6em; left: 50%; width: 26%; height: 3.4em; transform: translateX(-50%); background: var(--bezel); border-radius: 99em; z-index: 4; }
+.lock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding-top: 11em; }
+.lock-date { font-size: 2.4em; font-weight: 500; opacity: 0.85; }
+.lock-time { font-size: 15em; font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.lock-widget {
+  margin-top: 2em; display: flex; align-items: center; gap: 0.6em; font-size: 1.9em; padding: 0.7em 1.2em; border-radius: 99em;
+  background: color-mix(in srgb, var(--paper) 14%, transparent); backdrop-filter: blur(8px);
+}
+.lock-widget svg { width: 1.2em; height: 1.2em; color: var(--copper); }
+.lock-bottom { position: absolute; left: 9%; right: 9%; bottom: 7em; display: flex; justify-content: space-between; }
+.lk-btn { width: 8.5em; height: 8.5em; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--ink) 50%, transparent); backdrop-filter: blur(8px); }
+.lk-btn svg { width: 3.4em; height: 3.4em; }
+.home-bar { position: absolute; left: 50%; bottom: 1.6em; width: 36%; height: 0.9em; border-radius: 99em; background: var(--paper); transform: translateX(-50%); z-index: 4; opacity: 0.9; }
+.alarm {
+  position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; padding-top: 13em;
+  background: color-mix(in srgb, var(--ink) 74%, transparent); backdrop-filter: blur(14px); visibility: hidden; opacity: 0;
+}
+.al-label { font-size: 2.6em; font-weight: 600; color: var(--copper); }
+.al-time { font-size: 14em; font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; }
+.al-name { font-size: 2.6em; opacity: 0.85; }
+.al-snooze { margin-top: auto; margin-bottom: 4em; font-size: 2.4em; font-weight: 600; padding: 0.8em 2.4em; border-radius: 99em; background: var(--copper); color: var(--ink); }
+.al-slider { position: relative; width: 84%; height: 9em; margin-bottom: 9em; border-radius: 99em; background: color-mix(in srgb, var(--paper) 16%, transparent); display: flex; align-items: center; }
+.al-knob { position: absolute; left: 0.8em; top: 0.8em; width: 7.4em; height: 7.4em; border-radius: 50%; background: var(--paper); color: var(--ink); display: grid; place-items: center; z-index: 2; }
+.al-knob svg { width: 3em; height: 3em; }
+.al-text { width: 100%; text-align: center; padding-left: 7em; font-size: 2.3em; color: color-mix(in srgb, var(--paper) 75%, transparent); }
+.touch {
+  position: absolute; width: 7.4em; height: 7.4em; border-radius: 50%; pointer-events: none; visibility: hidden; opacity: 0; z-index: 5;
+  background: color-mix(in srgb, var(--paper) 45%, transparent); box-shadow: 0 0 0 0.6em color-mix(in srgb, var(--paper) 16%, transparent);
+}
+#touchKnob { left: 0.8em; top: 0.8em; }
+#touchUp { left: 50%; bottom: 0.2em; margin-left: -3.7em; }
+#touchApp { left: 0; top: 0; z-index: 6; }
+/* Home screen behind the lock screen, revealed by the swipe */
+.home { position: absolute; inset: 0; padding: 13em 6em 0; visibility: hidden; opacity: 0; }
+.apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6em 3.4em; }
+.app { position: relative; aspect-ratio: 1; border-radius: 26%; background: var(--c, var(--flap)); display: grid; place-items: center; color: var(--paper); }
+.app i { position: absolute; top: 106%; left: 50%; transform: translateX(-50%); font-size: 1.5em; font-style: normal; white-space: nowrap; color: color-mix(in srgb, var(--paper) 82%, transparent); }
+.app svg { width: 55%; height: 55%; }
+.app-flow { background: linear-gradient(145deg, var(--copper), var(--copper-text)); box-shadow: 0 0 0 0.4em color-mix(in srgb, var(--copper) 25%, transparent); }
+.dock { position: absolute; left: 4.5em; right: 4.5em; bottom: 4em; display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.4em; padding: 2.4em 3em; border-radius: 5em; background: color-mix(in srgb, var(--paper) 13%, transparent); backdrop-filter: blur(10px); }
+.app-open { position: absolute; left: 0; top: 0; z-index: 3; display: grid; place-items: center; background: var(--copper); color: var(--paper); visibility: hidden; opacity: 0; }
+.app-open svg { width: 26%; height: auto; }
+
+/* Cursor, click ripple and the chip-to-window morph used between the chat and the vault */
+.pointer { position: absolute; left: 0; top: 0; width: 26px; height: 32px; z-index: 6; pointer-events: none; visibility: hidden; opacity: 0; transform-origin: 0 0; }
+.ripple { position: absolute; left: 0; top: 0; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 2px solid var(--copper); z-index: 6; pointer-events: none; visibility: hidden; opacity: 0; }
+.morph { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; visibility: hidden; opacity: 0; background: var(--copper); }
+
+/* Shared caption for the tool scenes */
+.app-cap { position: absolute; left: var(--gutter); top: calc(var(--gutter) + env(safe-area-inset-top, 0px)); z-index: 3; max-width: calc(100% - 2 * var(--gutter) - 150px); line-height: 1.6; }
+.app-cap b { color: var(--copper); font-weight: 500; }
+.app-cap .tag { margin-left: 0.4rem; padding: 0.1rem 0.45rem; border: 1px solid currentColor; border-radius: 999px; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.scene.paper .app-cap { color: var(--slate); }
+.scene.paper .app-cap b { color: var(--copper-text); }
+
+/* 7. workflow canvas: 2400 x 1000 design units, moved by a camera transform */
+.flow-cam { position: absolute; inset: 0; overflow: hidden; }
+.flow {
+  position: absolute; left: 0; top: 0; width: 2800px; height: 1000px; transform-origin: 0 0;
+  background-image: radial-gradient(color-mix(in srgb, var(--paper) 14%, transparent) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+.edges { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#s-flow { background: var(--ink); color: var(--paper); }
+.edge { fill: none; stroke: color-mix(in srgb, var(--paper) 28%, transparent); stroke-width: 2.5; }
+.edge.is-lit { stroke: var(--copper); stroke-dasharray: 14 10; animation: edge-flow 0.7s linear infinite; }
+@keyframes edge-flow { to { stroke-dashoffset: -24; } }
+.edge.is-dim { stroke-dasharray: 6 8; opacity: 0.4; }
+.packet { fill: var(--copper); }
+.node {
+  position: absolute; width: 260px; height: 96px; display: flex; align-items: center; gap: 14px; padding: 0 18px;
+  background: var(--flap); border: 1.5px solid color-mix(in srgb, var(--paper) 22%, transparent); border-radius: 14px;
+  color: var(--paper); transition: border-color 0.2s, box-shadow 0.2s;
+}
+.node.is-dim { opacity: 0.45; }
+.node.is-run { border-color: var(--copper); box-shadow: 0 0 0 6px color-mix(in srgb, var(--copper) 22%, transparent); }
+.node.is-ok { border-color: var(--copper); background: linear-gradient(90deg, var(--flap) 0%, color-mix(in srgb, var(--copper) 18%, var(--flap)) 100%); }
+/* A copper band sweeps left to right through a node while it runs, and once more as it finishes. */
+.node::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--copper) 40%, transparent) 50%, transparent 100%) no-repeat;
+  background-size: 45% 100%; background-position: -60% 0;
+}
+.node.is-run::before { opacity: 1; animation: node-sweep 0.55s linear infinite; }
+.node.is-ok::before { opacity: 1; animation: node-sweep 0.8s ease-out 1 forwards; }
+@keyframes node-sweep { from { background-position: -60% 0; } to { background-position: 160% 0; } }
+.node > .n-icon, .node > .n-txt { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) { .edge.is-lit, .node::before { animation: none; } }
+.n-icon { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--paper) 8%, transparent); color: var(--copper); }
+.n-icon svg { width: 26px; height: 26px; }
+.n-txt { display: grid; gap: 4px; min-width: 0; }
+.n-txt b { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.n-txt span { font: 12px/1.3 var(--font-mono); color: var(--mist); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.n-status { position: absolute; top: -11px; right: -11px; width: 24px; height: 24px; border-radius: 50%; display: none; place-items: center; background: var(--copper); color: var(--ink); }
+.node.is-ok .n-status { display: grid; }
+.n-status svg { width: 14px; height: 14px; }
+.n-items { position: absolute; left: 0; bottom: -24px; font: 11px var(--font-mono); color: var(--copper); opacity: 0; }
+.node.is-ok .n-items { opacity: 1; }
+.n-spin { position: absolute; top: -11px; right: -11px; width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid color-mix(in srgb, var(--copper) 30%, transparent); border-top-color: var(--copper); display: none; animation: spin 0.6s linear infinite; }
+.node.is-run .n-spin { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.flow-log { position: absolute; left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); line-height: 1.8; }
+.flow-log b { color: var(--copper); font-weight: 500; }
+.exec {
+  position: absolute; left: 50%; bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 3;
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.85rem 1.4rem; border-radius: 10px;
+  background: var(--copper); color: var(--ink); font: 600 15px/1 var(--font-display); white-space: nowrap;
+  box-shadow: 0 0.6rem 2rem color-mix(in srgb, var(--copper) 30%, transparent);
+}
+.exec-icon { width: 0; height: 0; border-left: 9px solid currentColor; border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+.exec.is-running { background: var(--flap); color: var(--paper); box-shadow: none; }
+.exec.is-running .exec-icon { width: 12px; height: 12px; border: 2px solid color-mix(in srgb, var(--copper) 30%, transparent); border-top-color: var(--copper); border-radius: 50%; animation: spin 0.6s linear infinite; }
+
+/* 8. Claude chat */
+.chat { width: min(660px, calc(100% - 2 * var(--gutter))); display: grid; gap: 1.1rem; }
+#s-chat .app-cap { position: static; max-width: none; margin-bottom: 0.6rem; }
+.msg { border-radius: 16px; padding: 1rem 1.2rem; font-size: clamp(15px, 1.6vw, 17px); line-height: 1.55; }
+.msg p { margin: 0.35rem 0 0; white-space: pre-wrap; }
+.msg code { font: 0.9em var(--font-mono); color: var(--copper-text); }
+.msg-in { background: var(--ink); color: var(--paper); justify-self: end; max-width: 88%; }
+.msg-in code { color: var(--copper); }
+.msg-out { background: #FFFFFF; border: 1px solid var(--rule); color: var(--ink); }
+.who { display: flex; align-items: center; gap: 0.45rem; }
+.msg-in .who { color: var(--mist); }
+.claude-mark { width: 14px; height: 14px; color: var(--claude); flex: none; }
+.node .n-icon.is-claude { color: var(--claude); }
+.typing { display: flex; gap: 5px; padding: 0.5rem 0 0.2rem; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--mist); animation: typing 0.9s ease-in-out infinite; }
+.typing i:nth-child(2) { animation-delay: 0.15s; }
+.typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+.caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -0.18em; background: var(--copper); animation: caret 0.95s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+.saved { justify-self: start; background: var(--copper); color: var(--ink); padding: 0.5rem 0.9rem; border-radius: 999px; font-size: 12px; }
+
+/* 9. vault */
+.vault {
+  width: min(1180px, calc(100% - 2 * var(--gutter))); height: min(620px, calc(100% - 9rem));
+  position: relative; display: grid; grid-template-columns: 200px minmax(0, 1fr);
+  background: var(--flap); border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent); border-radius: 14px; overflow: hidden;
+}
+.tree { padding: 1.1rem 0.9rem; border-right: 1px solid color-mix(in srgb, var(--paper) 10%, transparent); line-height: 2; font-size: 12px; color: var(--mist); }
+.t-head { color: var(--paper); font-weight: 500; margin-bottom: 0.3rem; }
+.t-dir::before { content: "▾ "; }
+.t-file { padding-left: 1.1rem; border-radius: 6px; }
+.t-file.is-active { background: color-mix(in srgb, var(--copper) 18%, transparent); color: var(--copper); }
+.note { padding: 1.6rem 1.8rem; color: var(--paper); overflow: hidden; border-right: 1px solid color-mix(in srgb, var(--paper) 10%, transparent); }
+.note h3 { margin: 0 0 0.3rem; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; }
+.note h4 { margin: 1.1rem 0 0.4rem; font-size: 1.1rem; font-weight: 600; }
+.note p { margin: 0.25rem 0; color: color-mix(in srgb, var(--paper) 82%, transparent); font-size: 15px; }
+.note .tags { color: var(--mist); font-size: 12px; }
+.note .links { margin-top: 1rem; }
+.note a { color: var(--copper); }
+.graph { position: absolute; inset: 0; background: var(--flap); visibility: hidden; opacity: 0; }
+.graph-btn {
+  position: absolute; right: 16px; top: 14px; z-index: 2; display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.55rem 0.85rem; border-radius: 8px; font: 500 12px/1 var(--font-mono); color: var(--paper);
+  background: color-mix(in srgb, var(--paper) 8%, transparent); border: 1px solid color-mix(in srgb, var(--paper) 18%, transparent);
+}
+.graph-btn svg { width: 16px; height: 16px; color: var(--copper); }
+.graph-btn.is-pressed { background: var(--copper); color: var(--ink); border-color: var(--copper); }
+.graph-btn.is-pressed svg { color: var(--ink); }
+#graphCanvas { width: 100%; height: 100%; display: block; }
+.g-cap { position: absolute; left: 1.1rem; top: 0.9rem; color: var(--mist); }
+.g-cap b { color: var(--copper); font-weight: 500; }
+#s-vault .app-cap { top: auto; bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 760px) {
+  .vault { grid-template-columns: minmax(0, 1fr); height: calc(100% - 8rem); }
+  .tree { display: none; }
+  .note { padding: 1.1rem 1.2rem; border-right: 0; }
+  .note h3 { font-size: 1.3rem; }
+  .note p { font-size: 13px; }
+}
+
+/* 10. the copper point becomes a setting sun over the sea; the name comes in beside it */
+#s-final { place-items: stretch; --horizon: 64%; --sun: min(46vh, 36vw); --sun-x: 70%; }
+.sky {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--ink) 0%, var(--dusk-plum) 32%, var(--dusk-ember) 54%, var(--copper) calc(var(--horizon) - 0.5%), var(--sea) var(--horizon), var(--ink) 100%);
+}
+.sun-glow {
+  position: absolute; left: var(--sun-x); top: var(--horizon); width: min(130vh, 110vw); aspect-ratio: 1; max-width: none;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sun-hot) 34%, transparent) 0%, color-mix(in srgb, var(--copper) 16%, transparent) 30%, transparent 62%);
+}
+/* The sun sits in a box that ends at the horizon, so it sinks behind the line of the sea. */
+.sun-clip { position: absolute; left: 0; right: 0; top: 0; height: var(--horizon); overflow: hidden; }
+.sun {
+  position: absolute; left: var(--sun-x); top: calc(100% - var(--sun) * 0.62); width: var(--sun); aspect-ratio: 1; max-width: none;
+  transform: translateX(-50%); border-radius: 50%;
+  background: linear-gradient(180deg, var(--sun-hot) 0%, var(--copper) 52%, var(--sun-deep) 100%);
+  box-shadow: 0 0 6rem 1.5rem color-mix(in srgb, var(--copper) 40%, transparent);
+}
+.sea { position: absolute; left: 0; right: 0; top: var(--horizon); bottom: 0; background: linear-gradient(180deg, var(--sea) 0%, var(--ink) 100%); overflow: hidden; }
+.reflect {
+  position: absolute; left: var(--sun-x); top: 0; width: calc(var(--sun) * 0.8); height: 75%; transform-origin: 50% 0;
+  margin-left: calc(var(--sun) * -0.4);
+  background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--sun-hot) 65%, transparent) 0 2px, transparent 2px 8px);
+  -webkit-mask-image: radial-gradient(50% 100% at 50% 0%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(50% 100% at 50% 0%, #000 0%, transparent 100%);
+  opacity: 0.6; animation: shimmer 3.2s ease-in-out infinite alternate;
+}
+@keyframes shimmer { from { transform: scaleX(0.92); background-position: 0 0; } to { transform: scaleX(1.06); background-position: 0 16px; } }
+@media (prefers-reduced-motion: reduce) { .reflect { animation: none; } }
+.horizon { position: absolute; left: 0; right: 0; top: var(--horizon); height: 1px; background: color-mix(in srgb, var(--sun-hot) 40%, transparent); }
+.sun-time { position: absolute; left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); line-height: 1.7; color: var(--paper); opacity: 0.8; }
+.sun-time b { color: var(--copper); font-weight: 500; }
+.nameplate {
+  position: absolute; left: var(--gutter); top: 50%; transform: translateY(-50%);
+  color: var(--paper); max-width: min(92vw, 640px);
+}
+.nameplate h1 { margin: 0; font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; letter-spacing: -0.04em; line-height: 0.95; }
+.nameplate h1 b { font-weight: 700; }
+.nameplate p { margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.04em; color: color-mix(in srgb, var(--paper) 82%, transparent); line-height: 1.8; }
+.nameplate a { color: var(--copper); text-decoration: none; display: inline-block; margin-top: 1.4rem; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.nameplate a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+@media (max-width: 760px) {
+  .roles { flex-direction: column; align-items: flex-start; gap: 0.3em; width: min(100%, 11ch); margin-inline: auto; }
+  .slot.first > span { justify-self: start; }
+  .nameplate { top: auto; bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)); transform: none; }
+  #s-final { --horizon: 46%; --sun: min(34vh, 66vw); --sun-x: 50%; }
+}
+
+/* ---------- Catalog page ---------- */
+.page { padding-inline: var(--gutter); padding-block: 0 4rem; max-width: 1180px; margin-inline: auto; }
+.block { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 2rem; padding-block: 5rem; border-top: 1px solid var(--rule); }
+.block:first-child { border-top: 0; }
+.label { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--slate); padding-top: 0.5rem; }
+.label i { font-style: normal; color: var(--copper-text); }
+.lede { margin: 0; font-size: clamp(1.5rem, 3.2vw, 2.3rem); line-height: 1.22; letter-spacing: -0.02em; font-weight: 300; max-width: 30ch; text-wrap: balance; }
+.lede b { font-weight: 600; }
+.body { max-width: 62ch; color: var(--slate); margin: 1.5rem 0 0; }
+.work { list-style: none; margin: 0; padding: 0; display: grid; }
+.work li { display: grid; grid-template-columns: 92px minmax(0, 1fr) minmax(0, 220px); gap: 1.25rem; padding-block: 1.6rem; border-top: 1px solid var(--rule); align-items: start; }
+.work li:first-child { border-top: 0; padding-top: 0.4rem; }
+.yr { font-family: var(--font-mono); font-size: 13px; color: var(--slate); font-variant-numeric: tabular-nums; padding-top: 0.25rem; }
+.work h3 { margin: 0; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
+.work p { margin: 0.4rem 0 0; color: var(--slate); max-width: 58ch; }
+.kind { font-family: var(--font-mono); font-size: 12px; color: var(--slate); line-height: 1.8; }
+.kind span { display: block; }
+.metric { color: var(--ink); font-variant-numeric: tabular-nums; }
+.metric b { color: var(--copper-text); font-weight: 600; }
+.stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 2rem 2.5rem; }
+.stack h3 { margin: 0 0 0.6rem; font-size: 1rem; font-weight: 600; }
+.stack ul { list-style: none; margin: 0; padding: 0; color: var(--slate); font-size: 15px; line-height: 1.9; }
+.contact { background: var(--ink); color: var(--paper); padding-inline: var(--gutter); padding-block: 6rem 5rem; }
+.contact-inner { max-width: 1180px; margin-inline: auto; display: grid; gap: 2.5rem; }
+.contact h2 { margin: 0; font-size: clamp(2.2rem, 7vw, 5rem); font-weight: 300; letter-spacing: -0.035em; line-height: 1; text-wrap: balance; }
+.contact h2 b { font-weight: 700; }
+.channels { display: flex; flex-wrap: wrap; gap: 1rem 2.5rem; font-family: var(--font-mono); font-size: 14px; }
+.channel { display: grid; gap: 0.35rem; min-width: 0; }
+.channel small { color: var(--mist); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; }
+.copy-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.addr { user-select: all; overflow-wrap: anywhere; }
+button.copy { font: inherit; font-size: 12px; color: var(--ink); background: var(--copper); border: 0; padding: 0.35rem 0.8rem; border-radius: 999px; cursor: pointer; }
+button.copy:hover { background: var(--paper); }
+.contact a { text-decoration-color: var(--copper); text-underline-offset: 4px; }
+.foot { font-family: var(--font-mono); font-size: 12px; color: var(--mist); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; border-top: 1px solid color-mix(in srgb, var(--paper) 15%, transparent); padding-top: 1.5rem; }
+@media (max-width: 760px) {
+  .block { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding-block: 3.5rem; }
+  .work li { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
+  .yr { padding-top: 0; }
+}
+</style>
+
+<button type="button" class="sound" id="soundBtn" aria-pressed="false" hidden>
+  <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="soundLbl">Sound off</span>
+</button>
+
+<!-- The Claude mark (Simple Icons), shared by the n8n node and the chat header. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="claudeMark" viewBox="0 0 24 24"><path fill="currentColor" d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></symbol></svg>
+
+<header class="stage" id="stage">
+
+  <!-- 1. measured Hi -->
+  <div class="scene ink" id="s-hi" aria-hidden="true">
+    <div class="hi-wrap">
+      <div class="hi big" id="hi"><span id="hH">H</span><span id="hI">i</span></div>
+      <div class="guide h" id="gTop"></div>
+      <div class="guide h" id="gBot"></div>
+      <div class="guide v" id="gL"></div>
+      <div class="guide v" id="gR"></div>
+      <div class="dim mono" id="dW"></div>
+      <div class="dim mono" id="dH"></div>
+    </div>
+    <div class="readout mono">event <b>greeting</b><br>page_location /matt-klette</div>
+  </div>
+
+  <!-- 2. I'm -->
+  <div class="scene ink" id="s-im" aria-hidden="true">
+    <div class="im-word" id="imWord"><span class="cursor"></span><span id="imText">’m</span></div>
+  </div>
+
+  <!-- 3. Your -->
+  <div class="scene paper" id="s-your" aria-hidden="true">
+    <div class="your-word mid" id="yourWord"><span>Y</span><span>o</span><span>u</span><span>r</span></div>
+  </div>
+
+  <!-- 4. role line -->
+  <div class="scene paper" id="s-role" aria-hidden="true">
+    <div class="roles line">
+      <span class="word-wrap">
+        <span class="slot first" id="slotA"><span>Analytics</span><span>Motion</span><span>Creative</span></span>
+        <svg class="signal" viewBox="0 0 300 12" preserveAspectRatio="none">
+          <path id="signal" d="" fill="none" stroke="var(--ink)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+          <path id="signalTip" d="" fill="none" stroke="var(--copper)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        </svg>
+      </span>
+      <span class="word-wrap">
+        <span class="slot second" id="slotB"><span>Engineer</span><span>Designer</span><span>Technologist</span></span>
+        <span class="badge" id="badge">
+          <svg id="bDot" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="var(--copper)"/></svg>
+          <svg id="bKey" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" transform="rotate(45 10 10)" fill="var(--copper)"/></svg>
+          <svg id="bCode" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="var(--copper)"/><path d="M8 6 L4.5 10 L8 14 M12 6 L15.5 10 L12 14" stroke="var(--ink)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <!-- 5. phrases, accelerating on the beat -->
+  <div class="scene ink" id="s-phrase" aria-hidden="true">
+    <div class="phrase line pos-c" id="phrase"></div>
+    <div class="eps mono">events/sec <b id="eps">0.5</b></div>
+  </div>
+
+  <!-- 6. lock screen: the day runs forward to golden hour, the alarm rings and is swiped away -->
+  <div class="scene" id="s-clock" aria-hidden="true">
+    <div class="phone" id="phone">
+      <div class="screen" id="screen">
+        <div class="island"></div>
+        <div class="lock" id="lock">
+          <div class="lock-date">Thursday 8 October</div>
+          <div class="lock-time" id="lockTime">9:00</div>
+          <div class="lock-widget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.5 1.5M5 4 2.5 6.5M19 4l2.5 2.5"/></svg>Golden hour · 18:47</div>
+          <div class="lock-bottom">
+            <span class="lk-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M8 2h8v4l-2 4v11h-4V10L8 6z"/></svg></span>
+            <span class="lk-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></span>
+          </div>
+        </div>
+        <div class="alarm" id="alarm">
+          <div class="al-label">Alarm</div>
+          <div class="al-time">18:47</div>
+          <div class="al-name">Golden hour</div>
+          <div class="al-snooze">Snooze</div>
+          <div class="al-slider" id="slider">
+            <div class="al-knob" id="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></div>
+            <span class="al-text" id="slideText">slide to stop</span>
+            <div class="touch" id="touchKnob"></div>
+          </div>
+        </div>
+        <div class="home" id="home" aria-hidden="true">
+          <div class="apps">
+            <span class="app" style="--c: var(--flap)"><i>Mail</i></span>
+            <span class="app" style="--c: var(--slate)"><i>Notes</i></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--copper) 45%, var(--ink))"><i>Photos</i></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--mist) 55%, var(--ink))"><i>Clock</i></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--mist) 35%, var(--ink))"><i>Analytics</i></span>
+            <span class="app app-flow" id="appFlow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="2.4"/><circle cx="19" cy="6" r="2.4"/><circle cx="19" cy="18" r="2.4"/><path d="M7.3 11.2 16.7 6.8M7.3 12.8l9.4 4.4"/></svg><i>Workflows</i></span>
+            <span class="app" style="--c: var(--flap)"><i>Claude</i></span>
+            <span class="app" style="--c: var(--slate)"><i>Vault</i></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--copper) 25%, var(--ink))"><i>Blender</i></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--mist) 45%, var(--ink))"><i>Music</i></span>
+            <span class="app" style="--c: var(--flap)"><i>Maps</i></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--slate) 70%, var(--ink))"><i>Settings</i></span>
+          </div>
+          <div class="dock">
+            <span class="app" style="--c: color-mix(in srgb, var(--mist) 45%, var(--ink))"></span>
+            <span class="app" style="--c: var(--slate)"></span>
+            <span class="app" style="--c: color-mix(in srgb, var(--copper) 35%, var(--ink))"></span>
+            <span class="app" style="--c: var(--flap)"></span>
+          </div>
+        </div>
+        <div class="app-open" id="appOpen" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="2.4"/><circle cx="19" cy="6" r="2.4"/><circle cx="19" cy="18" r="2.4"/><path d="M7.3 11.2 16.7 6.8M7.3 12.8l9.4 4.4"/></svg></div>
+        <div class="touch" id="touchApp"></div>
+        <div class="home-bar"></div>
+        <div class="touch" id="touchUp"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. workflow canvas -->
+  <div class="scene" id="s-flow" aria-hidden="true">
+    <div class="flow-cam"><div class="flow" id="flow"><svg class="edges" id="edges" viewBox="0 0 2800 1000"></svg></div></div>
+    <div class="app-cap mono"><b>n8n</b> · tracking-watchdog · execution #4127 <span class="tag">sample data</span></div>
+    <div class="flow-log mono" id="flowLog"></div>
+    <div class="exec" id="execBtn"><span class="exec-icon" aria-hidden="true"></span><span id="execLabel">Execute workflow</span></div>
+  </div>
+
+  <!-- 8. Claude chat -->
+  <div class="scene paper" id="s-chat" aria-hidden="true">
+    <div class="chat">
+      <div class="app-cap mono"><b>Claude</b> · called by tracking-watchdog <span class="tag">sample data</span></div>
+      <div class="msg msg-in" id="msgIn">
+        <div class="who mono">n8n · 18:47</div>
+        <p>Daily check: <code>consent_granted</code> on /checkout fell from 71% to 58% after today's 14:05 container publish. Other pages are flat. What happened, and can you draft a vault note?</p>
+      </div>
+      <div class="msg msg-out" id="msgOut">
+        <div class="who mono"><svg class="claude-mark" viewBox="0 0 24 24" aria-hidden="true"><use href="#claudeMark"/></svg>Claude</div>
+        <div class="typing" id="typing"><i></i><i></i><i></i></div>
+        <p><span id="reply"></span><i class="caret" aria-hidden="true"></i></p>
+      </div>
+      <div class="saved mono" id="saved">Saved to vault → Daily/2026-10-08.md</div>
+    </div>
+  </div>
+
+  <!-- 9. second-brain vault -->
+  <div class="scene ink" id="s-vault" aria-hidden="true">
+    <div class="vault" id="vault">
+      <aside class="tree mono">
+        <div class="t-head">second-brain</div>
+        <div class="t-dir">Daily</div>
+        <div class="t-file">2026-10-06.md</div>
+        <div class="t-file">2026-10-07.md</div>
+        <div class="t-file is-active">2026-10-08.md</div>
+        <div class="t-dir">Tracking</div>
+        <div class="t-file">Consent Mode.md</div>
+        <div class="t-file">sGTM.md</div>
+        <div class="t-file">n8n watchdog.md</div>
+        <div class="t-dir">Motion</div>
+        <div class="t-file">Blender.md</div>
+        <div class="t-file">Reels.md</div>
+      </aside>
+      <article class="note" id="note">
+        <h3 class="nl">2026-10-08</h3>
+        <p class="nl mono tags">#tracking #consent #watchdog</p>
+        <h4 class="nl">Consent dip on /checkout</h4>
+        <p class="nl">– Cause: banner trigger moved to DOM Ready in the 14:05 publish</p>
+        <p class="nl">– Fix: fire tags on the consent update, then republish</p>
+        <p class="nl">– Check: tomorrow's 18:47 run</p>
+        <p class="nl links">Related: <a>[[Consent Mode]]</a> · <a>[[sGTM]]</a> · <a>[[n8n watchdog]]</a></p>
+      </article>
+      <div class="graph-btn" id="graphBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M8 7.6 15.9 6.4M7.2 9 10.9 15M16.9 8 13.1 15"/></svg>Open graph view</div>
+      <div class="graph" id="graphView"><canvas id="graphCanvas" aria-hidden="true"></canvas><div class="g-cap mono" id="gCap">graph view · <b>1</b> note</div></div>
+    </div>
+    <div class="app-cap mono"><b>Obsidian</b> · second brain · Daily/2026-10-08.md <span class="tag">sample data</span></div>
+  </div>
+
+  <!-- 10. golden hour: the copper core becomes the sun; name. This is the resting frame. -->
+  <div class="scene ink is-rest" id="s-final">
+    <div class="sky" id="sky" aria-hidden="true"></div>
+    <div class="sun-glow" id="sunGlow" aria-hidden="true"></div>
+    <div class="sun-clip" aria-hidden="true"><div class="sun" id="sun"></div></div>
+    <div class="sea" id="sea" aria-hidden="true"><div class="reflect" id="reflect"></div></div>
+    <div class="horizon" id="horizon" aria-hidden="true"></div>
+    <div class="sun-time mono" id="sunTime" aria-hidden="true">golden hour <b>18:47</b><br>Thursday 8 October</div>
+    <div class="nameplate" id="nameplate">
+      <h1>Matt <b>Klette</b></h1>
+      <p>Analytics engineer · Motion designer · Creative technologist<br>Independent · MBK Consulting Group</p>
+      <a href="#work">See the work ↓</a>
+    </div>
+  </div>
+
+  <button type="button" class="playpause" id="playBtn" data-state="ready" aria-label="Start the intro with sound">
+    <span class="pp-ring" aria-hidden="true">
+      <svg class="pp-play" viewBox="0 0 24 24"><path d="M8 5.5 L19 12 L8 18.5 Z" fill="currentColor"/></svg>
+      <svg class="pp-pause" viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
+    </span>
+    <span class="pp-label" id="ppLabel">Click here to start</span>
+    <span class="pp-sub mono" id="ppSub">intro · 50s · sound on</span>
+  </button>
+
+  <div class="morph" id="morph" aria-hidden="true"></div>
+  <div class="ripple" id="ripple" aria-hidden="true"></div>
+  <svg class="pointer" id="pointer" viewBox="0 0 26 32" aria-hidden="true"><path d="M2 2v23l6-5.5 4.2 9 3.6-1.6-4.1-8.9H20z" fill="var(--ink)" stroke="var(--paper)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+
+  <div class="controls">
+    <button type="button" id="skipBtn">Skip intro</button>
+    <button type="button" id="replayBtn" hidden>Replay</button>
+  </div>
+</header>
+
+<main class="page" id="work">
+  <section class="block" aria-labelledby="about-h">
+    <div class="label" id="about-h">About</div>
+    <div>
+      <p class="lede">I build the <b>measurement layer</b> under e-commerce sites, and I make product reels when the data is quiet.</p>
+      <p class="body">Day to day that means client and server-side tagging, consent that actually gates the tags it should, and clean event streams into the warehouse. Away from the containers it means Blender, light and timing. Both jobs come down to making something invisible behave exactly as intended.</p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="work-h">
+    <div class="label" id="work-h">Selected work <i>· catalog</i></div>
+    <ol class="work">
+      <li>
+        <div class="yr">2024–now</div>
+        <div>
+          <h3>Server-side tagging for an outdoor apparel brand</h3>
+          <p>Contract analytics engineer on a React storefront. I run day-to-day releases for the web and server tag containers, move tracking server-side and tie each tag to the right consent signal.</p>
+        </div>
+        <div class="kind">
+          <span class="metric">Server data streams <b>27 → 50</b></span>
+          <span class="metric">Consent-checked tags <b>0 → 59</b></span>
+          <span class="metric">2026 prod releases <b>131</b></span>
+        </div>
+      </li>
+      <li>
+        <div class="yr">2026</div>
+        <div>
+          <h3>Server container audit</h3>
+          <p>A full review of a production server-side tagging setup: every client, tag and trigger, with a ranked fix list the team worked through.</p>
+        </div>
+        <div class="kind"><span>sGTM · Stape</span><span>Written and delivered solo</span></div>
+      </li>
+      <li>
+        <div class="yr">2026</div>
+        <div>
+          <h3>Ops automations</h3>
+          <p>Four n8n workflows that take repetitive tracking and reporting chores off a small analytics team.</p>
+        </div>
+        <div class="kind"><span>n8n</span><span>4 workflows shipped</span></div>
+      </li>
+      <li>
+        <div class="yr">2026</div>
+        <div>
+          <h3>Liquid-to-watch product reel</h3>
+          <p>Molten metal pours, folds and settles into a dress watch. Fluid sim and look development in Blender, rendered in Cycles.</p>
+        </div>
+        <div class="kind"><span>Blender · Cycles</span><span>Spec piece</span></div>
+      </li>
+      <li>
+        <div class="yr">2026</div>
+        <div>
+          <h3>Fragrance bottle reels</h3>
+          <p>Short spec films for sculptural perfume bottles, mixing Cycles and EEVEE passes and cut to an original dub-techno track.</p>
+        </div>
+        <div class="kind"><span>Blender · Cycles + EEVEE</span><span>Spec pieces</span></div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="block" aria-labelledby="stack-h">
+    <div class="label" id="stack-h">Toolkit</div>
+    <div class="stack">
+      <div><h3>Measurement</h3><ul><li>Google Tag Manager</li><li>Server-side GTM (Stape)</li><li>GA4 · BigQuery</li><li>Consent Mode v2 · OneTrust</li></ul></div>
+      <div><h3>Ad signals</h3><ul><li>Meta Conversions API</li><li>Google Ads server tags</li><li>Klaviyo identity</li><li>Microsoft Clarity</li></ul></div>
+      <div><h3>Motion and build</h3><ul><li>Blender (Cycles, EEVEE)</li><li>GSAP · ScrollTrigger</li><li>n8n</li><li>Claude Code</li></ul></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="edu-h">
+    <div class="label" id="edu-h">Study</div>
+    <div>
+      <p class="lede">BCAD, <b>Emeris</b></p>
+      <p class="body">Formerly IIE Varsity College. Finishing in 2026.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="contact" aria-labelledby="contact-h">
+  <div class="contact-inner">
+    <h2 id="contact-h">Have a tracking problem<br>or a product to <b>move</b>?</h2>
+    <div class="channels">
+      <div class="channel">
+        <small>Email</small>
+        <div class="copy-row">
+          <span class="addr" id="addr">mbkconsultinggroup@gmail.com</span>
+          <button class="copy" id="copyBtn" type="button">Copy</button>
+        </div>
+      </div>
+      <div class="channel">
+        <small>LinkedIn</small>
+        <a href="https://www.linkedin.com/in/matthewklette" target="_blank" rel="noopener">/in/matthewklette</a>
+      </div>
+    </div>
+    <div class="foot"><span>Matt Klette · MBK Consulting Group</span><span>Built with GSAP + Lenis</span></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* Mysterious organic house, synthesized live with Web Audio. Original, nothing sampled.
+   120 BPM in A minor: a plucked rolling bass, swung shakers, congas, rim clicks, a soft kick and a warm pad,
+   in a long hall with a dotted-eighth echo.
+   Also the intro's sound effects: whooshes, thuds, key clicks, ticks, grains, swells, alarm and shutter. */
+window.Techno = (() => {
+  // This cut's tempo and key. The whole intro is timed in beats, so the visuals follow the tempo.
+  const VARIANT = { name: 'regular', bpm: 120, pitch: 0 };
+  const PITCH = Math.pow(2, VARIANT.pitch / 12);
+  const BPM = VARIANT.bpm, BEAT = 60 / BPM, SIXTEENTH = BEAT / 4;
+  const SWING = 0.12; // off-sixteenths land a little late for a loose, organic feel
+  const LOOKAHEAD_S = 0.12, TICK_MS = 25;
+  const A1 = 55 * PITCH;
+  // One chord per bar, as semitones above A1: the bass root and a warm pad voicing. Am, Am, G, F.
+  // `top` is the rolling bass's last note of the bar, above the root, kept inside A minor (on F it is D, not E♭).
+  const CHORDS = [
+    { root: 0, top: 10, pad: [12, 15, 19, 24] },
+    { root: 0, top: 10, pad: [12, 15, 19, 24] },
+    { root: -2, top: 10, pad: [10, 14, 17, 22] },
+    { root: -4, top: 9, pad: [8, 12, 15, 20] },
+  ];
+  // Bass hits per bar: [sixteenth, semitones above the root, length in sixteenths].
+  const BASS = [[2, 0, 2], [7, 12, 1], [10, 0, 2], [13, 0, 1], [14, 7, 2]];
+  // Congas per bar: [sixteenth, high?].
+  const CONGAS = [[3, true], [6, false], [7, false], [11, true], [14, true], [15, false]];
+  // Rolling bass per bar, two short notes between each pair of kicks: [sixteenth, semitones above the root ('top' = the chord's top note)].
+  const DEEP = [[2, 0], [3, 0], [6, 0], [7, 12], [10, 0], [11, 0], [14, 7], [15, 'top']];
+  const DEEP_LEVEL = 0.25;
+  const BASS_VERB = 0.22; // how much of both basslines goes into the reverb
+  const TRACK_LEVEL = 0.45;
+  const OUTPUT_GAIN = 2.5; // about +8 dB on the whole mix, music and sound effects together
+  // The intro reshapes the arrangement scene by scene: each layer has a fader and the whole track runs through a low-pass.
+  const LAYERS = ['kick', 'bass', 'deep', 'punch', 'shaker', 'conga', 'rim', 'hat', 'clap', 'stab', 'lift', 'tick', 'pad', 'wind'];
+  // The four-bar loop runs from the start of the track; layers build on it, counted in four-bar repeats from the Execute click ('drop'):
+  // from the 3rd repeat the first A minor bar ends with a high E.
+  const HIGH = { fromRepeat: 2, chord: 0, pos: 12, semi: 43, level: 0.045 };    // E5 on the last beat of the first Am
+  // The arrangement only ever grows, apart from one short breakdown before the name. Changes land on the next bar line.
+  const FULL = { kick: 1, bass: 1, shaker: 1, conga: 1, rim: 1, hat: 1, clap: 1, stab: 1, lift: 1, pad: 1, wind: 0.6, lp: 20000 };
+  const SECTIONS = {
+    intro:   { kick: 0, bass: 0, shaker: 0, conga: 0, rim: 0, hat: 0, clap: 0, pad: 1, wind: 1, lp: 1400 },   // pad and wind
+    roles:   { kick: 0, bass: 0, shaker: 0.8, conga: 0, rim: 1, hat: 0, clap: 0, pad: 1, wind: 0.9, lp: 4000 }, // + shakers, rims
+    phrases: { kick: 1, bass: 1, shaker: 1, conga: 0, rim: 1, hat: 0, clap: 0, pad: 1, wind: 0.7, lp: 20000 }, // + kick, bass
+    build:   { kick: 1, bass: 1, shaker: 1, conga: 1, rim: 1, hat: 0, clap: 0, pad: 1, wind: 0.7, lp: 20000 }, // + congas
+    drop:    FULL,                                                                                         // + hat, clap, chord stabs (the Execute click)
+    chat:    { ...FULL, tick: 1, deep: 1, bass: 0.3 },                                                     // + rolling bass, 'ta, ta-ta' hi-hat
+    sun:     { kick: 0, bass: 0, shaker: 0.6, conga: 0, rim: 0, hat: 0, clap: 0, pad: 1, wind: 1, lp: 3000 },  // the one breakdown
+    final:   { ...FULL, tick: 1, deep: 1, bass: 0.3, punch: 0.35, gain: 1.1, slam: true },                  // the drop under the name: everything back, a touch firmer
+  };
+  LAYERS.forEach((k) => Object.values(SECTIONS).forEach((sec) => { if (sec[k] === undefined) sec[k] = 0; }));
+  Object.values(SECTIONS).forEach((sec) => { if (sec.gain === undefined) sec.gain = 1; });
+  const ON = 0.01; // a layer below this level is not triggered at all
+  let ctx = null, master = null, music = null, track = null, bus = null, verb = null, echo = null, noise = null;
+  let trackFilter = null, layers = {}, mix = SECTIONS.intro, pendingSection = null;
+  let padVoices = [], alarmBus = null;
+  let dropBar = -1; // the bar of the Execute click (-1: not yet)
+  const chordIndex = (bar) => bar % CHORDS.length;
+  const chordAt = (bar) => CHORDS[chordIndex(bar)];
+  let timer = null, nextTime = 0, step = 0, on = false;
+
+  const hz = (semi) => A1 * Math.pow(2, semi / 12);
+  const env = (g, t, peak, attack, decay) => {
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+  };
+  const impulse = (seconds, decay) => {
+    const len = Math.floor(ctx.sampleRate * seconds), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return buf;
+  };
+  const softClip = (amount) => {
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; curve[i] = Math.tanh(x * amount); }
+    return curve;
+  };
+  const noiseSource = (loop = false) => { const s = ctx.createBufferSource(); s.buffer = noise; s.loop = loop; return s; };
+  const filter = (type, freq, q = 0.7) => { const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q; return f; };
+
+  const init = () => {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    ctx = new AC();
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -16; comp.ratio.value = 3; comp.attack.value = 0.006; comp.release.value = 0.25;
+    master = ctx.createGain(); master.gain.value = 0;
+    music = ctx.createGain(); music.gain.value = 1;
+    // Make-up gain brings the whole mix up to a normal listening level; a fast limiter after it keeps peaks under 0 dBFS.
+    const makeup = ctx.createGain(); makeup.gain.value = OUTPUT_GAIN;
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -1.5; limiter.knee.value = 0; limiter.ratio.value = 20; limiter.attack.value = 0.002; limiter.release.value = 0.12;
+    music.connect(master); master.connect(comp); comp.connect(makeup); makeup.connect(limiter); limiter.connect(ctx.destination);
+    // The backing track has its own level, kept well under the sound effects.
+    track = ctx.createGain(); track.gain.value = TRACK_LEVEL; track.connect(music);
+    trackFilter = filter('lowpass', SECTIONS.intro.lp, 0.6); trackFilter.connect(track);
+    bus = ctx.createGain(); bus.connect(trackFilter); // rhythm section and pad; breathes gently with the kick
+    LAYERS.forEach((k) => { const g = ctx.createGain(); g.gain.value = SECTIONS.intro[k]; layers[k] = g; });
+    ['bass', 'deep', 'shaker', 'conga', 'rim', 'hat', 'clap', 'stab', 'lift', 'tick', 'pad'].forEach((k) => layers[k].connect(bus));
+    layers.kick.connect(trackFilter); layers.punch.connect(trackFilter); layers.wind.connect(trackFilter);
+
+    const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    noise = nb;
+
+    // Long, dark hall.
+    verb = ctx.createConvolver(); verb.buffer = impulse(4.8, 2.6);
+    const verbTone = filter('lowpass', 4200), verbOut = ctx.createGain(); verbOut.gain.value = 0.42;
+    verb.connect(verbTone); verbTone.connect(verbOut); verbOut.connect(music);
+    // Both basslines send a little into the hall, so they bloom instead of sitting dry.
+    const bassSend = ctx.createGain(); bassSend.gain.value = BASS_VERB;
+    layers.bass.connect(bassSend); layers.deep.connect(bassSend); bassSend.connect(verb);
+
+    // Dotted-eighth echo with a darkening feedback loop.
+    echo = ctx.createGain();
+    const d = ctx.createDelay(2); d.delayTime.value = BEAT * 0.75;
+    const fb = ctx.createGain(); fb.gain.value = 0.4;
+    const fbTone = filter('lowpass', 2400);
+    const echoOut = ctx.createGain(); echoOut.gain.value = 0.5;
+    echo.connect(d); d.connect(fbTone); fbTone.connect(fb); fb.connect(d); fbTone.connect(echoOut); echoOut.connect(music); echoOut.connect(verb);
+
+    // Pad: four voices, a triangle and a soft saw each, through a slowly breathing low-pass.
+    const padFilter = filter('lowpass', 760, 0.6);
+    const lfo = ctx.createOscillator(), lfoAmt = ctx.createGain();
+    lfo.frequency.value = 0.04; lfoAmt.gain.value = 260; lfo.connect(lfoAmt); lfoAmt.connect(padFilter.frequency); lfo.start();
+    const pad = ctx.createGain(); pad.gain.value = 0.04;
+    padVoices = CHORDS[0].pad.map((semi) => [['triangle', -5], ['sawtooth', 6]].map(([type, cents]) => {
+      const o = ctx.createOscillator(); o.type = type; o.frequency.value = hz(semi); o.detune.value = cents;
+      const g = ctx.createGain(); g.gain.value = type === 'sawtooth' ? 0.35 : 1;
+      o.connect(g); g.connect(padFilter); o.start(); return o;
+    }));
+    padFilter.connect(pad); pad.connect(layers.pad);
+    const padSend = ctx.createGain(); padSend.gain.value = 0.3; pad.connect(padSend); padSend.connect(verb);
+
+    // Wind bed: looped noise through a slowly drifting band-pass, for the mystery.
+    const wind = noiseSource(true), wBp = filter('bandpass', 500, 0.7), wGain = ctx.createGain();
+    wGain.gain.value = 0.022;
+    const wLfo = ctx.createOscillator(), wAmt = ctx.createGain();
+    wLfo.frequency.value = 0.03; wAmt.gain.value = 300; wLfo.connect(wAmt); wAmt.connect(wBp.frequency); wLfo.start();
+    wind.connect(wBp); wBp.connect(wGain); wGain.connect(layers.wind); wGain.connect(verb); wind.start();
+  };
+
+  const setChord = (bar, t) => {
+    const chord = chordAt(bar);
+    padVoices.forEach((pair, v) => pair.forEach((o) => o.frequency.setTargetAtTime(hz(chord.pad[v]), t, 0.12)));
+  };
+  // Soft, round kick: felt more than heard.
+  const kick = (t) => {
+    const o = ctx.createOscillator(), g = ctx.createGain(), sh = ctx.createWaveShaper();
+    sh.curve = softClip(1.5);
+    o.frequency.setValueAtTime(115 * PITCH, t);
+    o.frequency.exponentialRampToValueAtTime(46 * PITCH, t + 0.12);
+    env(g, t, 0.85, 0.003, 0.34);
+    o.connect(g); g.connect(sh); sh.connect(layers.kick);
+    o.start(t); o.stop(t + 0.4);
+    bus.gain.cancelScheduledValues(t);
+    bus.gain.setValueAtTime(0.62, t);
+    bus.gain.linearRampToValueAtTime(1, t + BEAT * 0.7);
+  };
+  // Plucked bass: a triangle and a sine through a low-pass that closes quickly, low resonance so it never chirps.
+  const bass = (t, semi, len) => {
+    const lp = filter('lowpass', 620, 0.9), g = ctx.createGain();
+    lp.frequency.setValueAtTime(620, t); lp.frequency.exponentialRampToValueAtTime(150, t + 0.14);
+    [['triangle', 1], ['sine', 0.8]].forEach(([type, amp]) => {
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.type = type; o.frequency.value = hz(semi); og.gain.value = amp;
+      o.connect(og); og.connect(lp); o.start(t); o.stop(t + len + 0.05);
+    });
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(0.42, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    lp.connect(g); g.connect(layers.bass);
+  };
+  // Rolling bass: short, tight plucks. A sine sub plus a thin square whose low-pass snaps shut at once, with no swell or sustain.
+  const deepBass = (t, semi) => {
+    const f = hz(semi), len = SIXTEENTH * 0.9, lp = filter('lowpass', 600, 0.8), g = ctx.createGain();
+    lp.frequency.setValueAtTime(600, t);
+    lp.frequency.exponentialRampToValueAtTime(110, t + 0.05);
+    const sub = ctx.createOscillator(), sq = ctx.createOscillator(), sqG = ctx.createGain();
+    sub.type = 'sine'; sub.frequency.value = f;
+    sq.type = 'square'; sq.frequency.value = f; sqG.gain.value = 0.15;
+    sub.connect(g); sq.connect(sqG); sqG.connect(lp); lp.connect(g);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(DEEP_LEVEL, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    g.connect(layers.deep);
+    [sub, sq].forEach((o) => { o.start(t); o.stop(t + len + 0.03); });
+  };
+  // Extra weight on the kick for the drop: a click on top and a hard-driven body.
+  const punch = (t) => {
+    const s = noiseSource(), hp = filter('highpass', 2500), cg = ctx.createGain();
+    env(cg, t, 0.3, 0.001, 0.012);
+    s.connect(hp); hp.connect(cg); cg.connect(layers.punch); s.start(t); s.stop(t + 0.03);
+    const o = ctx.createOscillator(), g = ctx.createGain(), sh = ctx.createWaveShaper();
+    sh.curve = softClip(4);
+    o.frequency.setValueAtTime(190 * PITCH, t); o.frequency.exponentialRampToValueAtTime(50 * PITCH, t + 0.08);
+    env(g, t, 0.6, 0.002, 0.22);
+    o.connect(g); g.connect(sh); sh.connect(layers.punch); o.start(t); o.stop(t + 0.3);
+  };
+  // The hit under the name, on the downbeat: a soft sub drop and a light cymbal wash. Felt, not loud.
+  const slam = (t) => {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.frequency.setValueAtTime(90 * PITCH, t); o.frequency.exponentialRampToValueAtTime(34 * PITCH, t + 0.7);
+    env(og, t, 0.38, 0.004, 1.0);
+    o.connect(og); og.connect(music); o.start(t); o.stop(t + 1.1);
+    const s = noiseSource(true), hp = filter('highpass', 6000, 0.5), cg = ctx.createGain();
+    env(cg, t, 0.045, 0.004, 1.6);
+    s.connect(hp); hp.connect(cg); cg.connect(music); cg.connect(verb); s.start(t); s.stop(t + 1.7);
+  };
+  const shaker = (t, level) => {
+    const s = noiseSource(), hp = filter('highpass', 5200), bp = filter('bandpass', 8200, 0.8), g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(level, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+    s.connect(hp); hp.connect(bp); bp.connect(g); g.connect(layers.shaker);
+    s.start(t); s.stop(t + 0.08);
+  };
+  const conga = (t, high) => {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    const f0 = high ? 330 : 210;
+    o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * 0.8, t + 0.15);
+    env(g, t, high ? 0.14 : 0.18, 0.002, high ? 0.14 : 0.2);
+    o.connect(g); g.connect(layers.conga); g.connect(verb);
+    o.start(t); o.stop(t + 0.3);
+    const s = noiseSource(), bp = filter('bandpass', high ? 2400 : 1500, 1.2), sg = ctx.createGain(); // skin slap
+    env(sg, t, 0.05, 0.001, 0.025);
+    s.connect(bp); bp.connect(sg); sg.connect(layers.conga); s.start(t); s.stop(t + 0.05);
+  };
+  const hat = (t) => {
+    const s = noiseSource(), hp = filter('highpass', 7200, 0.7), g = ctx.createGain();
+    env(g, t, 0.05, 0.002, 0.13);
+    s.connect(hp); hp.connect(g); g.connect(layers.hat);
+    s.start(t); s.stop(t + 0.2);
+  };
+  // Dub chord stab: the bar's minor chord an octave up, filtered short and thrown into the echo.
+  const stab = (t, bar) => {
+    const chord = chordAt(bar), lp = filter('lowpass', 1500, 1), g = ctx.createGain();
+    env(g, t, 0.05, 0.004, 0.16);
+    chord.pad.forEach((semi) => {
+      const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = hz(semi + 12); o.connect(lp);
+      o.start(t); o.stop(t + 0.25);
+    });
+    lp.connect(g); g.connect(layers.stab); g.connect(echo);
+  };
+  // A single high note, soft and bell-like, ringing out into the echo.
+  const highNote = (t, semi, len, level) => {
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(level, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    [['sine', 1, 1], ['triangle', 2, 0.25]].forEach(([type, mult, amp]) => {
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.type = type; o.frequency.value = hz(semi) * mult; og.gain.value = amp;
+      o.connect(og); og.connect(g); o.start(t); o.stop(t + len + 0.05);
+    });
+    g.connect(layers.lift); g.connect(echo);
+  };
+  const clap = (t) => {
+    const s = noiseSource(), bp = filter('bandpass', 1250, 0.8), g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    [0, 0.011, 0.022].forEach((d) => { g.gain.setValueAtTime(0.13, t + d); g.gain.exponentialRampToValueAtTime(0.02, t + d + 0.009); });
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    s.connect(bp); bp.connect(g); g.connect(layers.clap); g.connect(verb);
+    s.start(t); s.stop(t + 0.3);
+  };
+  // Closed hi-hat for the 'ta, ta-ta' figure.
+  const tickHat = (t, level) => {
+    const s = noiseSource(), hp = filter('highpass', 8500, 0.7), g = ctx.createGain();
+    env(g, t, level, 0.001, 0.028);
+    s.connect(hp); hp.connect(g); g.connect(layers.tick);
+    s.start(t); s.stop(t + 0.05);
+  };
+  const rim = (t) => {
+    const s = noiseSource(), bp = filter('bandpass', 2300, 4), g = ctx.createGain();
+    env(g, t, 0.12, 0.001, 0.03);
+    s.connect(bp); bp.connect(g); g.connect(layers.rim); g.connect(echo);
+    s.start(t); s.stop(t + 0.06);
+  };
+  // Which layers play is set by the current section (see SECTIONS).
+  const schedule = (s, t) => {
+    const bar = Math.floor(s / 16), pos = s % 16;
+    const swung = pos % 2 === 1 ? t + SWING * SIXTEENTH : t;
+    if (pos === 0) {
+      if (pendingSection) {
+        const { name, rampS } = pendingSection;
+        pendingSection = null;
+        applySection(name, rampS, t);
+        if (SECTIONS[name].slam) slam(t);
+        if (name === 'drop') dropBar = bar;
+      }
+      setChord(bar, t);
+    }
+    const chord = chordAt(bar), root = chord.root, ci = chordIndex(bar);
+    const repeat = dropBar < 0 ? -1 : Math.floor((bar - dropBar) / CHORDS.length);
+    if (mix.shaker > ON) shaker(swung, (pos % 4 === 2 ? 0.05 : pos % 2 === 1 ? 0.022 : 0.032));
+    if (mix.kick > ON && pos % 4 === 0) kick(t);
+    if (mix.punch > ON && pos % 4 === 0) punch(t);
+    if (mix.bass > ON) BASS.forEach(([p, semi, len]) => { if (p === pos) bass(swung, root + semi, len * SIXTEENTH); });
+    if (mix.deep > ON) DEEP.forEach(([p, semi]) => { if (p === pos) deepBass(swung, root + (semi === 'top' ? chord.top : semi)); });
+    if (mix.conga > ON) CONGAS.forEach(([p, high]) => { if (p === pos) conga(swung, high); });
+    if (mix.rim > ON && (pos === 4 || pos === 12)) rim(t);
+    if (mix.hat > ON && pos % 4 === 2) hat(t);
+    if (mix.clap > ON && (pos === 4 || pos === 12)) clap(t);
+    if (mix.stab > ON && (pos === 6 || pos === 14)) stab(t, bar);
+    if (mix.lift > ON && repeat >= HIGH.fromRepeat && ci === HIGH.chord && pos === HIGH.pos) highNote(t, HIGH.semi, (16 - HIGH.pos) * SIXTEENTH + 0.6, HIGH.level);
+    if (mix.tick > ON && pos % 4 !== 1) tickHat(t, pos % 4 === 0 ? 0.05 : pos % 4 === 2 ? 0.032 : 0.04); // ta . ta-ta on every beat
+  };
+
+  const tick = () => {
+    while (nextTime < ctx.currentTime + LOOKAHEAD_S) {
+      schedule(step, nextTime);
+      nextTime += SIXTEENTH; step++;
+    }
+  };
+
+  /* ---------- Sound effects. Soft, filtered and reverberant: no tones, nothing that beeps. ---------- */
+  const SFX = {
+    // Band-passed noise sweeping up (or down), panned across the field.
+    whoosh: (dur = 0.5, up = true, level = 0.16) => {
+      const t = ctx.currentTime, s = noiseSource(true), bp = filter('bandpass', up ? 350 : 4500, 1.1), g = ctx.createGain();
+      const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+      bp.frequency.exponentialRampToValueAtTime(up ? 4500 : 350, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(level, t + dur * 0.65);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(bp); bp.connect(g);
+      if (pan) { pan.pan.setValueAtTime(up ? -0.6 : 0.6, t); pan.pan.linearRampToValueAtTime(up ? 0.6 : -0.6, t + dur); g.connect(pan); pan.connect(music); } else g.connect(music);
+      g.connect(verb);
+      s.start(t); s.stop(t + dur + 0.05);
+    },
+    // Low drop with a little grit, for hits and cuts.
+    thud: (level = 0.55) => {
+      const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain(), sh = ctx.createWaveShaper();
+      sh.curve = softClip(2);
+      o.frequency.setValueAtTime(72, t); o.frequency.exponentialRampToValueAtTime(32, t + 0.4);
+      env(g, t, level, 0.003, 0.6);
+      o.connect(g); g.connect(sh); sh.connect(music); g.connect(verb);
+      o.start(t); o.stop(t + 0.7);
+    },
+    // Soft, low key press for typing.
+    key: (level = 0.07) => {
+      const t = ctx.currentTime, s = noiseSource(), bp = filter('bandpass', 1050 + Math.random() * 500, 0.9), lp = filter('lowpass', 2400), g = ctx.createGain();
+      env(g, t, level, 0.001, 0.022);
+      s.connect(bp); bp.connect(lp); lp.connect(g); g.connect(music);
+      s.start(t); s.stop(t + 0.05);
+    },
+    // A split-flap card: a dry clack, then the card settling.
+    clack: (level = 0.1) => {
+      const t = ctx.currentTime;
+      [[0, 2600, 2, level, 0.012], [0.028, 900, 0.8, level * 0.7, 0.03]].forEach(([dt, f, q, lv, dec]) => {
+        const s = noiseSource(), bp = filter('bandpass', f, q), g = ctx.createGain();
+        env(g, t + dt, lv, 0.001, dec);
+        s.connect(bp); bp.connect(g); g.connect(music);
+        s.start(t + dt); s.stop(t + dt + 0.06);
+      });
+    },
+    // A breath of high air into the hall, for nodes arriving.
+    // Pitch, ring and length vary on every call, so a run of them never sounds mechanical; `delay` nudges it off the grid.
+    grain: (level = 0.03, delay = 0) => {
+      const t = ctx.currentTime + delay, s = noiseSource(), bp = filter('bandpass', 2200 + Math.random() * 4800, 1.5 + Math.random() * 2.5), g = ctx.createGain();
+      env(g, t, level, 0.004 + Math.random() * 0.004, 0.03 + Math.random() * 0.05);
+      s.connect(bp); bp.connect(g); g.connect(verb); g.connect(music);
+      s.start(t); s.stop(t + 0.08);
+    },
+    // Slow airy rise that is cut off at its peak, like a reversed tail.
+    swell: (dur = 1) => {
+      const t = ctx.currentTime, s = noiseSource(true), lp = filter('lowpass', 200, 0.6), g = ctx.createGain();
+      lp.frequency.exponentialRampToValueAtTime(2600, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.14, t + dur);
+      g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.04);
+      s.connect(lp); lp.connect(g); g.connect(music); g.connect(verb);
+      s.start(t); s.stop(t + dur + 0.06);
+    },
+    // Mechanical clock tick (or the slightly lower tock), dry and close.
+    tick: (tock = false, level = 0.09) => {
+      const t = ctx.currentTime, s = noiseSource(), bp = filter('bandpass', tock ? 1500 : 2200, 3), g = ctx.createGain();
+      env(g, t, level, 0.001, 0.018);
+      s.connect(bp); bp.connect(g); g.connect(music);
+      s.start(t); s.stop(t + 0.04);
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.frequency.value = tock ? 900 : 1200;
+      env(og, t, level * 0.25, 0.001, 0.012);
+      o.connect(og); og.connect(music); o.start(t); o.stop(t + 0.03);
+    },
+    // Phone-style alarm in the spirit of a "Radar" ring: bursts of quick bright pulses that repeat until stopped.
+    alarmStart: (level = 0.12) => {
+      if (alarmBus) return;
+      const t0 = ctx.currentTime, PULSE = 0.07, GAP = 0.045, PULSES = 5, BURST_GAP = 0.3, CYCLE_GAP = 0.55, CYCLES = 1;
+      const burstLen = PULSES * (PULSE + GAP), cycleLen = 2 * burstLen + BURST_GAP + CYCLE_GAP;
+      alarmBus = ctx.createGain(); alarmBus.gain.value = level;
+      const tone = filter('lowpass', 5200, 0.5);
+      tone.connect(alarmBus); alarmBus.connect(music);
+      const send = ctx.createGain(); send.gain.value = 0.35; alarmBus.connect(send); send.connect(verb);
+      for (let cyc = 0; cyc < CYCLES; cyc++) for (let burst = 0; burst < 2; burst++) for (let k = 0; k < PULSES; k++) {
+        const t = t0 + cyc * cycleLen + burst * (burstLen + BURST_GAP) + k * (PULSE + GAP);
+        [[1760, 1], [2637, 0.35]].forEach(([f, amp]) => {
+          const o = ctx.createOscillator(), g = ctx.createGain();
+          o.type = 'sine'; o.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.linearRampToValueAtTime(amp, t + 0.006);
+          g.gain.setValueAtTime(amp, t + PULSE - 0.012);
+          g.gain.linearRampToValueAtTime(0.0001, t + PULSE);
+          o.connect(g); g.connect(tone); o.start(t); o.stop(t + PULSE + 0.01);
+        });
+      }
+    },
+    alarmStop: () => {
+      if (!alarmBus) return;
+      const bus0 = alarmBus, t = ctx.currentTime;
+      alarmBus = null;
+      bus0.gain.cancelScheduledValues(t);
+      bus0.gain.setValueAtTime(bus0.gain.value, t);
+      bus0.gain.linearRampToValueAtTime(0, t + 0.05);
+      setTimeout(() => bus0.disconnect(), 300);
+    },
+    // Finger tap on glass: a soft low knock.
+    tap: (level = 0.14) => {
+      const t = ctx.currentTime, s = noiseSource(), lp = filter('lowpass', 900, 0.7), g = ctx.createGain();
+      env(g, t, level, 0.001, 0.018);
+      s.connect(lp); lp.connect(g); g.connect(music); s.start(t); s.stop(t + 0.05);
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(90, t + 0.03);
+      env(og, t, level * 0.8, 0.001, 0.03);
+      o.connect(og); og.connect(music); o.start(t); o.stop(t + 0.06);
+    },
+    // Bubbly pop for things appearing: a quick band-passed noise sweep upward.
+    pop: (level = 0.08) => {
+      const t = ctx.currentTime, s = noiseSource(), bp = filter('bandpass', 700, 3), g = ctx.createGain();
+      bp.frequency.exponentialRampToValueAtTime(2600, t + 0.05);
+      env(g, t, level, 0.003, 0.05);
+      s.connect(bp); bp.connect(g); g.connect(music); g.connect(verb); s.start(t); s.stop(t + 0.09);
+    },
+    // Friction of a finger dragging across glass, for the slider.
+    slide: (dur = 0.5, level = 0.05) => {
+      const t = ctx.currentTime, s = noiseSource(true), bp = filter('bandpass', 900, 1.5), g = ctx.createGain();
+      bp.frequency.linearRampToValueAtTime(1600, t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(level, t + 0.05);
+      g.gain.setValueAtTime(level, t + dur - 0.06);
+      g.gain.linearRampToValueAtTime(0.0001, t + dur);
+      s.connect(bp); bp.connect(g); g.connect(music); s.start(t); s.stop(t + dur + 0.05);
+    },
+    // Airy shimmer for big reveals: high air that blooms into the hall.
+    shimmer: (dur = 1.4, level = 0.06) => {
+      const t = ctx.currentTime, s = noiseSource(true), hp = filter('highpass', 6000, 0.5), g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(level, t + dur * 0.35);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(hp); hp.connect(g); g.connect(verb); g.connect(music); s.start(t); s.stop(t + dur + 0.05);
+    },
+    // Mouse or button click: a sharp tick on top of a short body.
+    click: (level = 0.12) => {
+      const t = ctx.currentTime;
+      [[0, 4200, 1.2, level, 0.006], [0.004, 1400, 0.9, level * 0.7, 0.02]].forEach(([dt, f, q, lv, dec]) => {
+        const s = noiseSource(), bp = filter('bandpass', f, q), g = ctx.createGain();
+        env(g, t + dt, lv, 0.001, dec);
+        s.connect(bp); bp.connect(g); g.connect(music);
+        s.start(t + dt); s.stop(t + dt + 0.04);
+      });
+    },
+    // Camera shutter: blade release, then the mirror landing.
+    shutter: () => {
+      const t = ctx.currentTime;
+      [[0, 3400, 1.4, 0.2, 0.022], [0.075, 2100, 1, 0.16, 0.04]].forEach(([dt, f, q, lv, dec]) => {
+        const s = noiseSource(), bp = filter('bandpass', f, q), g = ctx.createGain();
+        env(g, t + dt, lv, 0.001, dec);
+        s.connect(bp); bp.connect(g); g.connect(music); g.connect(verb);
+        s.start(t + dt); s.stop(t + dt + 0.08);
+      });
+      const o = ctx.createOscillator(), og = ctx.createGain();
+      o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(70, t + 0.05);
+      env(og, t, 0.2, 0.001, 0.05);
+      o.connect(og); og.connect(music); o.start(t); o.stop(t + 0.08);
+    },
+    // Filtered noise sweep into the aperture.
+    riser: (dur = 1.5, level = 0.2) => {
+      const t = ctx.currentTime, s = noiseSource(true), bp = filter('bandpass', 300, 4), g = ctx.createGain();
+      bp.frequency.exponentialRampToValueAtTime(6500, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(level, t + dur); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.08);
+      s.connect(bp); bp.connect(g); g.connect(music); g.connect(verb);
+      s.start(t); s.stop(t + dur + 0.1);
+    },
+    // Sub boom when the aperture opens past the frame.
+    impact: () => {
+      const t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain(), sh = ctx.createWaveShaper();
+      sh.curve = softClip(2.2);
+      o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(26, t + 1);
+      env(g, t, 0.95, 0.003, 1.6);
+      o.connect(g); g.connect(sh); sh.connect(music); g.connect(verb);
+      o.start(t); o.stop(t + 1.7);
+    },
+  };
+  const fx = (name, ...args) => {
+    if (name === 'alarmStop') { if (ctx) SFX.alarmStop(); return; } // always allowed, so a skip or pause can silence it
+    if ((name === 'thud' || name === 'impact') && mix.kick > ON) return; // never stack a low hit on top of the kick
+    if (on && ctx && ctx.state === 'running' && SFX[name]) SFX[name](...args);
+  };
+
+  const start = () => {
+    if (!ctx) init();
+    ctx.resume();
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(master.gain.value, now);
+    master.gain.linearRampToValueAtTime(0.85, now + 1.2);
+    if (!timer) { nextTime = now + 0.06; step = 0; timer = setInterval(tick, TICK_MS); }
+    on = true;
+  };
+  const suspend = () => { if (ctx) ctx.suspend(); };
+  // Move the arrangement to a scene's preset, starting at time t and gliding over rampS seconds.
+  const applySection = (name, rampS, t) => {
+    const target = SECTIONS[name];
+    if (!target) return;
+    mix = target;
+    if (!ctx) return;
+    const tc = Math.max(rampS, 0.01) / 3;
+    LAYERS.forEach((k) => { layers[k].gain.cancelScheduledValues(t); layers[k].gain.setTargetAtTime(target[k], t, tc); });
+    trackFilter.frequency.cancelScheduledValues(t);
+    trackFilter.frequency.setTargetAtTime(target.lp, t, tc);
+    track.gain.cancelScheduledValues(t);
+    track.gain.setTargetAtTime(TRACK_LEVEL * target.gain, t, tc);
+  };
+  // Changes wait for the next bar line so the music always moves in fours. `now` applies at once (skip, restart).
+  const section = (name, rampS = 0.3, now = false) => {
+    if (!SECTIONS[name]) return;
+    if (now || !ctx || !timer) { pendingSection = null; applySection(name, rampS, ctx ? ctx.currentTime : 0); return; }
+    pendingSection = { name, rampS };
+  };
+  // Restart the pattern from bar one so it lines up with the intro's beat grid.
+  const resync = () => { if (!ctx) return; nextTime = ctx.currentTime + 0.02; step = 0; dropBar = -1; section('intro', 0.01, true); };
+  const stop = () => {
+    if (!ctx) return;
+    on = false;
+    const now = ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setValueAtTime(master.gain.value, now);
+    master.gain.linearRampToValueAtTime(0, now + 0.5);
+    setTimeout(() => { if (!on) { clearInterval(timer); timer = null; ctx.suspend(); } }, 600);
+  };
+
+  return { BPM, VARIANT, start, stop, suspend, resync, section, fx, isOn: () => on, isAudible: () => on && !!ctx && ctx.state === 'running', supported: !!(window.AudioContext || window.webkitAudioContext) };
+})();
+</script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const svgEl = (tag, attrs) => {
+    const el = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    return el;
+  };
+
+  // Copy email: clipboard may be refused, so fall back to selecting the text.
+  $('copyBtn').addEventListener('click', () => {
+    const btn = $('copyBtn');
+    const selectFallback = () => {
+      const range = document.createRange();
+      range.selectNodeContents($('addr'));
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      btn.textContent = 'Selected';
+    };
+    try {
+      navigator.clipboard.writeText($('addr').textContent).then(() => { btn.textContent = 'Copied'; }, selectFallback);
+    } catch (e) { selectFallback(); }
+  });
+
+  // Stepped "signal" underline: a square wave that reads like a tag firing.
+  const STEPS = 5, SEG = 272 / STEPS;
+  let wave = 'M0 11';
+  for (let i = 0; i < STEPS; i++) {
+    const x = i * SEG;
+    wave += ` H${x + SEG * 0.28} V6 H${x + SEG * 0.4} V2 H${x + SEG * 0.6} V6 H${x + SEG * 0.72} V11`;
+  }
+  $('signal').setAttribute('d', wave + ' H272');
+  $('signalTip').setAttribute('d', 'M272 11 H300');
+
+  if (!window.gsap) { $('skipBtn').hidden = true; return; }
+
+  if (window.Lenis) {
+    const lenis = new Lenis();
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+  }
+
+  /* ---------- Measurement guides around the Hi ---------- */
+  const hi = $('hi'), H = $('hH'), I = $('hI');
+  const guideState = { t: 0 };
+  let boxA = null, boxB = null;
+  const capBox = (el) => {
+    const w = hi.getBoundingClientRect(), e = el.getBoundingClientRect();
+    const top = e.height * 0.16, bottom = e.height * 0.14;
+    return { x: e.left - w.left, y: top, w: e.width, h: e.height - top - bottom };
+  };
+  const drawGuides = () => {
+    if (!boxA) return;
+    const k = guideState.t, lerp = (a, b) => a + (b - a) * k;
+    const x = lerp(boxA.x, boxB.x), w = lerp(boxA.w, boxB.w), y = boxA.y, h = boxA.h;
+    $('gTop').style.top = y + 'px';
+    $('gBot').style.top = (y + h) + 'px';
+    $('gL').style.left = x + 'px';
+    $('gR').style.left = (x + w) + 'px';
+    $('dW').textContent = Math.round(w) + 'px';
+    $('dW').style.cssText = `left:${x + w / 2}px;top:${y - 26}px;transform:translateX(-50%)`;
+    $('dH').textContent = Math.round(h) + 'px';
+    $('dH').style.cssText = `left:${x - 12}px;top:${y + h / 2}px;transform:translate(-100%,-50%)`;
+  };
+  const measureGuides = () => {
+    boxA = capBox(H);
+    boxB = { x: 0, y: boxA.y, w: hi.getBoundingClientRect().width, h: boxA.h };
+    drawGuides();
+  };
+
+  /* ---------- Stage size ---------- */
+  const stage = $('stage');
+  let W = 0, Ht = 0;
+  const layoutStage = () => { W = stage.clientWidth; Ht = stage.clientHeight; };
+
+  /* ---------- Timeline ---------- */
+  // Sound is on by default. Browsers keep audio suspended until the viewer's first click, tap or key,
+  // so if it's blocked the toggle says so and the first interaction anywhere unlocks it.
+  let skipping = false;
+  // Sound effects only play while the intro is really playing (not while skipping to the end).
+  const sfx = (name, ...args) => { if (!skipping && window.Techno) Techno.fx(name, ...args); };
+  let introLength = 50;
+  let renderSoundLabel = () => {};
+  const audio = { play: () => {}, restart: () => {}, pause: () => {}, isPlaying: () => false };
+  if (window.Techno && Techno.supported) {
+    const btn = $('soundBtn'), lbl = $('soundLbl');
+    const PREF_KEY = 'mk-sound';
+    const readPref = () => { try { return localStorage.getItem(PREF_KEY); } catch (e) { return null; } };
+    const writePref = (v) => { try { localStorage.setItem(PREF_KEY, v); } catch (e) { /* storage blocked: preference just isn't remembered */ } };
+    let wantSound = readPref() !== 'off';
+
+    const render = () => {
+      btn.setAttribute('aria-pressed', String(wantSound));
+      lbl.textContent = wantSound ? 'Sound on' : 'Sound off';
+      $('ppSub').textContent = `intro · ${introLength}s · ${wantSound ? 'sound on' : 'muted'}`;
+    };
+    // Called from the play / pause button: that click is the gesture browsers need before audio can start.
+    audio.play = () => { if (wantSound) Techno.start(); };
+    audio.restart = () => { if (wantSound) { Techno.start(); Techno.resync(); } };
+    audio.pause = () => Techno.suspend();
+
+    btn.hidden = false;
+    btn.addEventListener('click', () => {
+      wantSound = !wantSound;
+      writePref(wantSound ? 'on' : 'off');
+      if (!wantSound) Techno.stop();
+      else if (audio.isPlaying()) Techno.start();
+      render();
+    });
+    renderSoundLabel = render;
+    render();
+  }
+
+  const scenes = ['s-hi', 's-im', 's-your', 's-role', 's-final', 's-phrase', 's-clock', 's-flow', 's-chat', 's-vault'].map($);
+
+  /* ---------- Accelerating phrases, locked to the track's tempo ---------- */
+  const BEAT_S = 60 / (window.Techno ? Techno.BPM : 120);
+  // The strobing timestamps close in on 9:00. The last one is set exactly like the lock screen's clock, so it can become it.
+  const STAMPS = ['03:12', '05:47', '06:30', '07:05', '07:41', '08:13', '08:36', '08:52', '08:58'];
+  const PHRASES = [
+    { beats: 4, html: 'I measure what <b>moves</b>.', size: 'line', pos: 'c', invert: false },
+    { beats: 4, html: 'Then I make it <b>move</b>.', size: 'line', pos: 'c', invert: true },
+    ...['Tags.', 'Triggers.', 'Consent.', 'Signals.'].map((w, i) => ({ beats: 1, html: w, size: 'big', pos: 'lcrc'[i], invert: i % 2 === 0 })),
+    ...['Frames.', 'Keyframes.', 'Light.', 'Timing.', 'Render.', 'Measure.', 'Ship.', 'Repeat.'].map((w, i) => ({ beats: 0.5, html: w, size: 'mid', pos: 'tbtb'[i % 4] })),
+    ...['events', 'sessions', 'pixels', 'renders', 'streams', 'loops', 'data', 'motion'].map((w, i) => ({ beats: 0.25, html: w, size: i % 2 ? 'mid' : 'big', pos: 'lrcblrtc'[i] })),
+    ...STAMPS.map((s) => ({ beats: 0.125, html: s.replace(':', '<span class="colon-tight">:</span>'), size: 'big', pos: 'c', mono: true })),
+    { beats: 0.875, html: '9:00', size: 'big', pos: 'c', lock: true }, // holds to the bar line
+  ];
+  const showPhrase = (i) => {
+    const p = PHRASES[i], el = $('phrase'), scene = $('s-phrase');
+    gsap.set(el, { clearProps: 'transform,opacity,letterSpacing,marginRight' });
+    el.innerHTML = p.html; // static strings above, never user input
+    el.className = `phrase ${p.size} pos-${p.pos}${p.mono ? ' is-mono' : ''}${p.lock ? ' is-lock' : ''}`;
+    scene.classList.toggle('paper', !!p.invert);
+    scene.classList.toggle('ink', !p.invert);
+    $('eps').textContent = (1 / (p.beats * BEAT_S)).toFixed(1);
+    if (p.beats >= 4) sfx('shimmer', 1.6, 0.05);
+    if (p.invert) sfx('whoosh', 0.3, true, 0.07);
+    if (p.beats >= 1) sfx('thud', p.beats >= 4 ? 0.42 : 0.3);
+    else if (p.beats >= 0.5) sfx('whoosh', 0.22, i % 2 === 0, 0.08);
+    else if (p.beats >= 0.25) sfx('key', 0.08);
+    else sfx('clack', 0.07);
+  };
+
+  /* ---------- Lock screen: the day runs forward to golden hour ---------- */
+  const CLOCK_FROM = 9 * 60, CLOCK_TO = 18 * 60 + 47, CLOCK_SPIN_S = 8 * BEAT_S, CLOCK_N = 40;
+  const CLOCK_STEPS = Array.from({ length: CLOCK_N + 1 }, (_, k) => ({
+    at: CLOCK_SPIN_S * Math.pow(k / CLOCK_N, 2.2), // dense early, sparse late: it slows down to land
+    minutes: Math.round(CLOCK_FROM + (CLOCK_TO - CLOCK_FROM) * (k / CLOCK_N)),
+  }));
+  const setLockTime = (m) => {
+    const label = `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+    $('lockTime').textContent = label;
+  };
+  const resetLock = () => {
+    setLockTime(CLOCK_FROM);
+    gsap.set('#alarm', { autoAlpha: 0, y: 0 });
+    gsap.set('#lock', { y: 0, autoAlpha: 1 });
+    gsap.set(['#knob', '#touchKnob'], { x: 0 });
+    gsap.set(['#touchKnob', '#touchUp'], { autoAlpha: 0, y: 0, scale: 1 });
+    gsap.set('#slideText', { autoAlpha: 1 });
+    gsap.set('#phone', { x: 0 });
+    gsap.set('#home', { autoAlpha: 0, scale: 1 });
+    gsap.set(['#appOpen', '#touchApp'], { autoAlpha: 0 });
+    gsap.set('#appFlow', { scale: 1 });
+  };
+  // A box relative to the phone's screen (the phone is at scale 1 when these are measured).
+  const rectInScreen = (id) => {
+    const sc = $('screen').getBoundingClientRect(), r = $(id).getBoundingClientRect();
+    return { left: r.left - sc.left, top: r.top - sc.top, width: r.width, height: r.height };
+  };
+  // The phone transform that pushes the camera into the phone until its screen fills the stage.
+  const pushZoom = { x: 0, y: 0, scale: 1, origin: '50% 50%' };
+  const measurePush = () => {
+    const st = stage.getBoundingClientRect(), ph = $('phone').getBoundingClientRect(), sc = $('screen').getBoundingClientRect();
+    const cx = sc.left + sc.width / 2, cy = sc.top + sc.height / 2;
+    pushZoom.origin = `${cx - ph.left}px ${cy - ph.top}px`;
+    pushZoom.scale = Math.max(st.width / sc.width, st.height / sc.height) * 1.06;
+    pushZoom.x = st.left + st.width / 2 - cx;
+    pushZoom.y = st.top + st.height / 2 - cy;
+  };
+  const slideTravel = () => $('slider').offsetWidth - $('knob').offsetWidth - 2 * $('knob').offsetLeft;
+  // A box relative to the stage, for overlays that travel between scenes.
+  const rectOnStage = (id) => {
+    const st = stage.getBoundingClientRect(), r = $(id).getBoundingClientRect();
+    return { left: r.left - st.left, top: r.top - st.top, width: r.width, height: r.height };
+  };
+  // The phone transform that puts its clock exactly over the last stamp: same size, same place.
+  // Scale is about the clock's own centre, so only a translate is needed to line them up.
+  const lockZoom = { x: 0, y: 0, scale: 1, origin: '50% 50%' };
+  const measureLockZoom = () => {
+    const phone = $('phone');
+    gsap.set(phone, { clearProps: 'transform' });
+    const ph = phone.getBoundingClientRect(), lt = $('lockTime').getBoundingClientRect(), st = $('phrase').getBoundingClientRect();
+    const lx = lt.left + lt.width / 2, ly = lt.top + lt.height / 2;
+    lockZoom.origin = `${lx - ph.left}px ${ly - ph.top}px`;
+    lockZoom.scale = st.height / lt.height;
+    lockZoom.x = st.left + st.width / 2 - lx;
+    lockZoom.y = st.top + st.height / 2 - ly;
+  };
+  const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const cut = (tl, to, at) => {
+    scenes.forEach((s) => { if (s !== to) tl.set(s, { autoAlpha: 0 }, at); });
+    tl.set(to, { autoAlpha: 1 }, at);
+  };
+  const slotA = $('slotA').children, slotB = $('slotB').children;
+  const badgeX = (i) => () => slotB[i].offsetWidth - $('badge').offsetWidth * 0.15;
+
+
+  /* ---------- Workflow canvas (sample data) ---------- */
+  const ICONS = {
+    clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+    db: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
+    code: '<path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/>',
+    branch: '<path d="M7 4v5c0 3 5 3 5 6v5M17 4v5c0 3-5 3-5 6"/>',
+    dash: '<path d="M6 12h12"/>',
+    note: '<path d="M7 3h7l4 4v14H7zM14 3v4h4M9.5 12h6M9.5 16h6"/>',
+  };
+  const iconSvg = (k) => (k === 'claude'
+    ? '<svg viewBox="0 0 24 24"><use href="#claudeMark"/></svg>'
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>`);
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const NODE_W = 260, NODE_H = 96;
+  const FLOW_NODES = [
+    { id: 'trig', x: 200, y: 500, title: 'Schedule Trigger', sub: 'daily · 18:47', icon: 'clock', ms: 2, items: '1 item' },
+    { id: 'bq', x: 600, y: 270, title: 'BigQuery', sub: 'GA4 events export', icon: 'db', ms: 842, items: '48 rows' },
+    { id: 'ga4', x: 600, y: 500, title: 'GA4 Data API', sub: 'realtime report', icon: 'db', ms: 311, items: '12 rows' },
+    { id: 'logs', x: 600, y: 730, title: 'sGTM logs', sub: 'server container', icon: 'db', ms: 204, items: '930 rows' },
+    { id: 'merge', x: 1000, y: 500, title: 'Merge', sub: '3 inputs · by page', icon: 'branch', ms: 6, items: '48 rows' },
+    { id: 'code', x: 1400, y: 500, title: 'Code', sub: 'diff vs 28-day baseline', icon: 'code', ms: 31, items: '48 rows' },
+    { id: 'if', x: 1800, y: 500, title: 'IF', sub: 'drop > 3σ ?', icon: 'branch', ms: 1, items: 'true · 1 item' },
+    { id: 'claude', x: 2200, y: 300, title: 'Claude', sub: 'explain + draft note', icon: 'claude', ms: 2140, items: '1 item' },
+    { id: 'linear', x: 2200, y: 520, title: 'Linear', sub: 'open a ticket', icon: 'note', ms: 388, items: '1 issue' },
+    { id: 'quiet', x: 2200, y: 760, title: 'No Operation', sub: 'all quiet', icon: 'dash', ms: 0, items: '' },
+    { id: 'vault', x: 2600, y: 220, title: 'Obsidian', sub: 'append daily note', icon: 'note', ms: 12, items: '1 item' },
+    { id: 'teams', x: 2600, y: 420, title: 'Teams', sub: 'post summary', icon: 'note', ms: 96, items: '1 message' },
+  ];
+  const FLOW_EDGES = [
+    ['trig', 'bq'], ['trig', 'ga4'], ['trig', 'logs'], ['bq', 'merge'], ['ga4', 'merge'], ['logs', 'merge'],
+    ['merge', 'code'], ['code', 'if'], ['if', 'claude'], ['if', 'linear'], ['if', 'quiet'], ['claude', 'vault'], ['claude', 'teams'],
+  ];
+  const nodeById = Object.fromEntries(FLOW_NODES.map((n) => [n.id, n]));
+  const nodeEls = {}, edgeEls = [];
+  const cam = { x: 200, y: 500, s: 1 };
+  let FLOW_S = 1;
+
+  const buildFlow = () => {
+    const flow = $('flow'), edges = $('edges');
+    FLOW_EDGES.forEach(([a, b]) => {
+      const A = nodeById[a], B = nodeById[b];
+      const x1 = A.x + NODE_W / 2, x2 = B.x - NODE_W / 2;
+      const path = svgEl('path', { class: 'edge', d: `M${x1} ${A.y} C${x1 + 90} ${A.y} ${x2 - 90} ${B.y} ${x2} ${B.y}` });
+      const dot = svgEl('circle', { class: 'packet', r: 7, opacity: 0 });
+      edges.append(path, dot);
+      edgeEls.push({ path, dot });
+    });
+    FLOW_NODES.forEach((n) => {
+      const el = document.createElement('div');
+      el.className = 'node';
+      el.style.left = (n.x - NODE_W / 2) + 'px';
+      el.style.top = (n.y - NODE_H / 2) + 'px';
+      // Static strings defined above, never user input.
+      el.innerHTML = `<div class="n-icon${n.icon === 'claude' ? ' is-claude' : ''}">${iconSvg(n.icon)}</div><div class="n-txt"><b>${n.title}</b><span>${n.sub}</span></div>`
+        + `<div class="n-spin"></div><div class="n-status">${CHECK_SVG}</div><div class="n-items">${n.items}</div>`;
+      flow.appendChild(el);
+      nodeEls[n.id] = el;
+    });
+  };
+  const applyCam = () => {
+    $('flow').style.transform = `translate(${W / 2 - cam.x * cam.s}px, ${Ht / 2 - cam.y * cam.s}px) scale(${cam.s})`;
+  };
+  const layoutFlow = () => {
+    FLOW_S = Math.min(Ht / 920, W / 760) * 0.95;
+    applyCam();
+  };
+  const flowLog = [];
+  const resetFlow = () => {
+    Object.assign(cam, { x: 200, y: 500, s: FLOW_S });
+    Object.values(nodeEls).forEach((el) => el.classList.remove('is-run', 'is-ok', 'is-dim'));
+    edgeEls.forEach((e) => { e.path.classList.remove('is-lit', 'is-dim'); e.dot.setAttribute('opacity', 0); });
+    flowLog.length = 0;
+    $('flowLog').innerHTML = '';
+    applyCam();
+  };
+  const setNode = (id, state) => {
+    const el = nodeEls[id], n = nodeById[id];
+    el.classList.toggle('is-run', state === 'run');
+    el.classList.toggle('is-ok', state === 'ok');
+    if (state === 'run') sfx('pop', 0.05);
+    if (state !== 'ok') return;
+    flowLog.push(`✓ <b>${n.title}</b> · ${n.ms} ms`);
+    sfx('key', 0.06);
+    $('flowLog').innerHTML = flowLog.slice(-4).join('<br>');
+    sfx('pop', 0.04);
+  };
+  const edgeIndex = (a, b) => FLOW_EDGES.findIndex(([x, y]) => x === a && y === b);
+  const placePacket = (i, p) => {
+    const { path, dot } = edgeEls[i];
+    const pt = path.getPointAtLength(path.getTotalLength() * p);
+    dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y);
+    dot.setAttribute('opacity', p > 0.01 && p < 0.99 ? 1 : 0);
+  };
+  const lightEdge = (i) => { edgeEls[i].path.classList.add('is-lit'); sfx('key', 0.035); };
+  const dimQuietBranch = () => {
+    sfx('thud', 0.2);
+    nodeEls.quiet.classList.add('is-dim');
+    edgeEls[edgeIndex('if', 'quiet')].path.classList.add('is-dim');
+  };
+
+  /* ---------- Claude chat (sample data) ---------- */
+  const REPLY = "Likely cause: the 14:05 publish moved the consent banner to DOM Ready, so checkout tags fire before consent updates.\n\n• Scope: /checkout only\n• Fix: fire on the consent update, then republish\n• Check: tomorrow's 18:47 run\n\nNote drafted for your vault.";
+  // Typewriter: characters appear at an even pace; every new visible character gets a soft key sound.
+  const typed = { n: 0 };
+  let typedShown = 0;
+  const renderTyped = () => {
+    const k = Math.floor(typed.n);
+    if (k === typedShown) return;
+    $('reply').textContent = REPLY.slice(0, k);
+    typedShown = k;
+  };
+  const resetTyped = () => { typed.n = 0; typedShown = 0; $('reply').textContent = ''; };
+
+  /* ---------- Second-brain graph: words for the work, growing from one core ---------- */
+  const CORE = 'Matt Klette';
+  // [word, parent word]; parents always appear earlier, so every node joins something already on screen.
+  const WORK_WORDS = [
+    ['measurement', CORE], ['motion design', CORE], ['automation', CORE], ['storytelling', CORE],
+    ['server-side tagging', 'measurement'], ['consent', 'measurement'], ['Blender', 'motion design'], ['n8n', 'automation'], ['GA4', 'measurement'], ['kinetic type', 'motion design'],
+    ['AI agents', 'automation'], ['attribution', 'measurement'], ['signals', 'server-side tagging'], ['BigQuery', 'GA4'], ['lighting', 'Blender'], ['Claude', 'AI agents'], ['privacy', 'consent'], ['timing', 'motion design'], ['product reels', 'storytelling'], ['audits', 'server-side tagging'],
+    ['Meta CAPI', 'signals'], ['data quality', 'BigQuery'], ['3D', 'Blender'], ['GSAP', 'kinetic type'], ['prompting', 'Claude'], ['rendering', '3D'], ['dashboards', 'data quality'], ['typography', 'kinetic type'], ['pipelines', 'BigQuery'], ['debugging', 'audits'], ['sound', 'storytelling'], ['interaction', 'GSAP'],
+  ];
+  const CROSS_LINKS = [['storytelling', 'motion design'], ['Claude', 'n8n'], ['consent', 'Meta CAPI'], ['dashboards', 'attribution'], ['product reels', 'rendering']];
+  const seeded = (seed) => () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+  // Every note in the brain has a name: agents and skills from the setup, tools in the stack, and the notes they leave behind.
+  const AGENT_NOTES = [
+    'planner', 'architect', 'code-reviewer', 'security-reviewer', 'tdd-guide', 'e2e-runner', 'refactor-cleaner', 'doc-updater',
+    'build-error-resolver', 'performance-optimizer', 'seo-specialist', 'marketing-agent', 'react-reviewer', 'typescript-reviewer',
+    'python-reviewer', 'database-reviewer', 'silent-failure-hunter', 'a11y-architect', 'code-explorer', 'harness-optimizer',
+    'loop-operator', 'chief-of-staff', 'design-director', 'deck-director', 'image-studio', 'web-motion-stack', 'synthetic-crowd',
+    'graphify', 'watch', 'no-ai-slop', 'prompt-master', 'site-to-design-md', 'de-default-ui', 'apple-design', 'skill-vet',
+    'model-cascade', 'deep-research', 'dataviz', 'artifact-design', 'workflow-authoring', 'to-tickets', 'grilling',
+    'sGTM', 'Stape', 'OneTrust', 'Consent Mode v2', 'GA4 DebugView', 'Tag Assistant', 'Klaviyo', 'Clarity', 'Linear',
+    'Criteo', 'Bing UET', 'Google Ads', 'FPID cookie', 'dataLayer', 'Strapi', 'Cycles', 'EEVEE', 'Geometry Nodes', 'Lenis',
+    'ScrollTrigger', 'Web Audio', 'Remotion', 'Obsidian', 'Teams', 'Notion', 'Supabase', 'Vercel', 'Figma',
+  ];
+  const NOTE_STEMS = ['consent', 'event', 'signal', 'pixel', 'frame', 'render', 'flow', 'prompt', 'agent', 'scroll', 'motion', 'audit', 'trace', 'light', 'loop', 'reel', 'brand', 'funnel'];
+  const NOTE_TAILS = ['-map', '-log', '-notes', '-draft', '-spec', '-check', '-ideas', '-fix', '-review', '-sketch', '-index', '-plan', '-retro', '-tests', '-recipe', '-queue', '-snippets'];
+  const LEAF_NAMES = (() => {
+    const rnd = seeded(5), stems = NOTE_STEMS.flatMap((st) => NOTE_TAILS.map((tl) => st + tl));
+    for (let i = stems.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [stems[i], stems[j]] = [stems[j], stems[i]]; }
+    return [...AGENT_NOTES, ...stems.slice(0, 300)];
+  })();
+  // Words arrive one per beat, then halves, quarters, eighths. Then notes pour in on every sixteenth, in batches
+  // that swell with the square of time, while the copper core starts to glow. Then the brain becomes the night sky:
+  // every note shrinks to a star and drifts up, and the core pulls free of its links and sets as the sun.
+  const WORD_BEATS = [...Array(4).fill(1), ...Array(6).fill(0.5), ...Array(10).fill(0.25), ...Array(12).fill(0.125)];
+  const DUST_COUNT = 520;      // small unnamed notes on the outer branches, so the brain gets dense before it collapses
+  const POUR_BEATS = 6;        // from the last word to the sunset (rounded up to a bar line)
+  const SET_BEATS = 8;         // the brain turning into the sky while its core sets as the sun
+  const STAR_FADE_S = 2.6;     // the last stars fade out after the real sun takes over
+  const SUN_SWAP_S = 0.5;      // the real sun fades in over the drawn one before the drawn one goes
+  const STAR_R = 1.3;          // a note's radius (px) once it has become a star
+  const GRAPH_SIM_STEPS = 420;
+  const GW = 2400, GH = 1440, GCX = GW / 2, GCY = GH / 2;
+  const NODE_R = { core: 28, word: 11, leaf: 4.5, dust: 3 };
+  const FONT_PX = { core: 38, word: 26, leaf: 15, dust: 0 };
+  const MIN_LABEL_PX = 7;      // labels smaller than this on screen are skipped
+  const POP_MS = 380;          // how long a node takes to pop in
+
+  // The brain is drawn on one canvas each frame: far lighter than thousands of SVG elements.
+  const graph = { nodes: [], links: [], born: null, pos: null, shown: 0, glow: 0, set: 0, sun: null, coreGone: false, done: false, cam: { scale: 4, rot: 0 }, active: false, canvas: null, g: null, w: 0, h: 0, dpr: 1, colors: null };
+  const hexRgb = (hex) => { const v = parseInt(hex.replace('#', ''), 16); return [(v >> 16) & 255, (v >> 8) & 255, v & 255]; };
+  const lerpRgb = (a, b, k) => a.map((c, i) => c + (b[i] - c) * k);
+  const rgbStr = (c, alpha = 1) => `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${alpha})`;
+  const clamp01 = (v) => Math.min(1, Math.max(0, v));
+  const smooth = (t) => { const c = clamp01(t); return c * c * (3 - 2 * c); };
+
+  const buildGraph = () => {
+    const rnd = seeded(11);
+    const nodes = [{ name: CORE, kind: 'core' }];
+    const index = { [CORE]: 0 };
+    const links = [];
+    WORK_WORDS.forEach(([w, parent]) => {
+      index[w] = nodes.length;
+      links.push({ a: nodes.length, b: index[parent], len: parent === CORE ? 150 : 95, kind: parent === CORE ? 'core' : 'word' });
+      nodes.push({ name: w, kind: 'word', parent: index[parent] });
+    });
+    CROSS_LINKS.forEach(([a, b]) => links.push({ a: Math.max(index[a], index[b]), b: Math.min(index[a], index[b]), len: 140, kind: 'word' }));
+
+    // Lay out the core and the words with a small force simulation; the core stays pinned in the middle.
+    nodes.forEach((n, i) => {
+      if (i === 0) { n.x = GCX; n.y = GCY; n.vx = 0; n.vy = 0; return; }
+      const p = nodes[n.parent], a = rnd() * Math.PI * 2;
+      n.x = p.x + Math.cos(a) * 240; n.y = p.y + Math.sin(a) * 240; n.vx = 0; n.vy = 0;
+    });
+    for (let step = 0; step < GRAPH_SIM_STEPS; step++) {
+      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+        const A = nodes[i], B = nodes[j], dx = B.x - A.x, dy = B.y - A.y, d2 = Math.max(dx * dx + dy * dy, 30);
+        const f = 14000 / d2, d = Math.sqrt(d2);
+        A.vx -= (dx / d) * f; A.vy -= (dy / d) * f; B.vx += (dx / d) * f; B.vy += (dy / d) * f;
+      }
+      links.forEach(({ a, b, len }) => {
+        const A = nodes[a], B = nodes[b], dx = B.x - A.x, dy = B.y - A.y, d = Math.max(Math.hypot(dx, dy), 1);
+        const f = (d - len * 2.2) * 0.03;
+        A.vx += (dx / d) * f; A.vy += (dy / d) * f; B.vx -= (dx / d) * f; B.vy -= (dy / d) * f;
+      });
+      nodes.forEach((n, i) => {
+        if (i === 0) { n.vx = 0; n.vy = 0; return; }
+        n.vx += (GCX - n.x) * 0.002; n.vy += (GCY - n.y) * 0.004;
+        n.x = Math.min(GW - 360, Math.max(360, n.x + n.vx * 0.5)); n.y = Math.min(GH - 260, Math.max(260, n.y + n.vy * 0.5));
+        n.vx *= 0.6; n.vy *= 0.6;
+      });
+    }
+
+    // Then the named notes, each hanging off a word or an earlier note, growing outward so branches form.
+    const firstLeaf = nodes.length;
+    LEAF_NAMES.forEach((name) => {
+      const onLeaf = nodes.length > firstLeaf && rnd() < 0.45;
+      const parent = onLeaf ? firstLeaf + Math.floor(rnd() * (nodes.length - firstLeaf)) : 1 + Math.floor(rnd() * WORK_WORDS.length);
+      const p = nodes[parent];
+      const away = Math.atan2(p.y - GCY, p.x - GCX);
+      const angle = onLeaf ? away + (rnd() - 0.5) * 2.2 : rnd() * Math.PI * 2;
+      const dist = onLeaf ? 34 + rnd() * 40 : 70 + rnd() * 90;
+      const x = Math.min(GW - 30, Math.max(30, p.x + Math.cos(angle) * dist));
+      const y = Math.min(GH - 30, Math.max(30, p.y + Math.sin(angle) * dist));
+      links.push({ a: nodes.length, b: parent, kind: 'leaf' });
+      nodes.push({ name, kind: 'leaf', parent, x, y });
+    });
+    // Then unnamed dust on the tips of the branches.
+    const firstDust = nodes.length;
+    for (let i = 0; i < DUST_COUNT; i++) {
+      const parent = firstLeaf + Math.floor(rnd() * (nodes.length - firstLeaf));
+      const p = nodes[parent], away = Math.atan2(p.y - GCY, p.x - GCX);
+      const angle = away + (rnd() - 0.5) * 2.6, dist = 22 + rnd() * 46;
+      const x = Math.min(GW - 20, Math.max(20, p.x + Math.cos(angle) * dist));
+      const y = Math.min(GH - 20, Math.max(20, p.y + Math.sin(angle) * dist));
+      links.push({ a: nodes.length, b: parent, kind: parent >= firstDust ? 'dust' : 'leaf' });
+      nodes.push({ name: '', kind: 'dust', parent, x, y });
+    }
+    // As stars, each note drifts up by its own depth (parallax) and twinkles on its own phase.
+    nodes.forEach((n) => { n.depth = 0.25 + rnd() * 0.75; n.phase = rnd() * Math.PI * 2; });
+    graph.nodes = nodes;
+    graph.links = links;
+    graph.born = new Float64Array(nodes.length).fill(-1);
+    graph.pos = new Float32Array(nodes.length * 2);
+    graph.canvas = $('graphCanvas');
+    graph.g = graph.canvas.getContext('2d');
+    const mist = hexRgb(cssVar('--mist'));
+    graph.colors = {
+      copper: hexRgb(cssVar('--copper')), star: hexRgb(cssVar('--paper')), word: hexRgb(cssVar('--paper')), leaf: mist, dust: mist, edge: mist,
+      sun: [hexRgb(cssVar('--sun-hot')), hexRgb(cssVar('--copper')), hexRgb(cssVar('--sun-deep'))],
+    };
+    gsap.ticker.add(() => { if (graph.active) drawGraph(); });
+  };
+
+  const sizeCanvas = () => {
+    const c = graph.canvas, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = c.clientWidth, h = c.clientHeight;
+    if (w === graph.w && h === graph.h && dpr === graph.dpr) return;
+    graph.w = w; graph.h = h; graph.dpr = dpr;
+    c.width = Math.max(1, Math.round(w * dpr)); c.height = Math.max(1, Math.round(h * dpr));
+  };
+  const graphScale = () => Math.min(graph.w / GW, graph.h / GH) * 0.95 * graph.cam.scale;
+  const popEase = (t) => { const c = 1.9; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); }; // back-out
+
+  // Each frame: where every note is on screen, then links, notes, names and the core.
+  // `set` runs 0 → 1 as the brain becomes the sky: notes become stars drifting up, the core travels to the sun and grows into it.
+  const drawGraph = () => {
+    if (!graph.canvas) return;
+    sizeCanvas();
+    const { g, w, h, dpr, nodes, links, born, pos, colors, sun } = graph, now = performance.now();
+    if (!w || !h) return;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    if (graph.done) return;
+    const k = graphScale(), cos = Math.cos(graph.cam.rot), sin = Math.sin(graph.cam.rot);
+    const p = sun ? graph.set : 0;
+    const starK = smooth(p / 0.6), lineFade = 1 - smooth(p / 0.45), coreLineFade = 1 - smooth(p / 0.75), labelFade = 1 - smooth(p / 0.3);
+    const lift = p * p * h * 0.32;
+    const age = (i) => (born[i] < 0 ? -1 : Math.min(1, (now - born[i]) / POP_MS));
+    nodes.forEach((n, i) => {
+      if (born[i] < 0) return;
+      const dx = (n.x - GCX) * k, dy = (n.y - GCY) * k;
+      pos[2 * i] = w / 2 + dx * cos - dy * sin;
+      pos[2 * i + 1] = h / 2 + dx * sin + dy * cos - lift * n.depth;
+    });
+    // The core: from the middle of the brain to the sun's place, growing into it.
+    const travel = smooth(p);
+    const cx = sun ? w / 2 + (sun.x - w / 2) * travel : w / 2, cy = sun ? h / 2 + (sun.y - h / 2) * travel : h / 2;
+    const cr = NODE_R.core * k + ((sun ? sun.r : 0) - NODE_R.core * k) * Math.pow(p, 1.6);
+    pos[0] = cx; pos[1] = cy;
+    // Stars only survive in the dark top of the sky; towards the glow and the horizon they fade.
+    const starBand = (y) => (sun ? clamp01((sun.horizon * 0.85 - y) / (sun.horizon * 0.45)) : 1);
+
+    // Links: hairlines. The core's links stretch as it pulls away, then let go.
+    // Grown links of one kind share a colour and alpha, so each kind is stroked as a single path; links still popping in go one by one.
+    g.lineWidth = 1;
+    const LINK_ALPHA = { core: 0.55, word: 0.3, leaf: 0.18, dust: 0.12 };
+    const edgeStr = rgbStr(colors.edge), coreStr = rgbStr(colors.copper);
+    const batches = {};
+    if (lineFade > 0.01 || coreLineFade > 0.01) links.forEach((l) => {
+      const a = age(l.a), b = age(l.b);
+      if (a < 0 || b < 0) return;
+      const fade = l.kind === 'core' ? coreLineFade : lineFade;
+      if (fade <= 0.01) return;
+      const x1 = pos[2 * l.a], y1 = pos[2 * l.a + 1], x2 = pos[2 * l.b], y2 = pos[2 * l.b + 1];
+      if (a >= 1 && b >= 1) { (batches[l.kind] = batches[l.kind] || []).push(x1, y1, x2, y2); return; }
+      g.globalAlpha = Math.min(a, b) * LINK_ALPHA[l.kind] * fade;
+      g.strokeStyle = l.kind === 'core' ? coreStr : edgeStr;
+      g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+    });
+    Object.entries(batches).forEach(([kind, seg]) => {
+      g.globalAlpha = LINK_ALPHA[kind] * (kind === 'core' ? coreLineFade : lineFade);
+      g.strokeStyle = kind === 'core' ? coreStr : edgeStr;
+      g.beginPath();
+      for (let j = 0; j < seg.length; j += 4) { g.moveTo(seg[j], seg[j + 1]); g.lineTo(seg[j + 2], seg[j + 3]); }
+      g.stroke();
+    });
+
+    // Notes, turning into stars, and their names.
+    g.textBaseline = 'middle';
+    const fillStr = { word: rgbStr(lerpRgb(colors.word, colors.star, starK)), leaf: rgbStr(lerpRgb(colors.leaf, colors.star, starK)), dust: rgbStr(lerpRgb(colors.dust, colors.star, starK)) };
+    for (let i = 1; i < nodes.length; i++) {
+      const a = age(i);
+      if (a < 0) continue;
+      const n = nodes[i], x = pos[2 * i], y = pos[2 * i + 1];
+      const r = NODE_R[n.kind] * k * Math.max(0, popEase(a)) * (1 - starK) + STAR_R * starK;
+      if (x + r < 0 || x - r > w || y + r < 0 || y - r > h) continue;
+      const asStar = starK > 0 ? (0.55 + 0.45 * Math.sin(now / 380 + n.phase)) * starBand(y) : 0;
+      const alpha = Math.min(1, a * 1.6) * (n.kind === 'dust' ? 0.75 : 1) * ((1 - starK) + starK * asStar);
+      if (alpha < 0.02) continue;
+      g.globalAlpha = alpha;
+      g.fillStyle = fillStr[n.kind];
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      const fontPx = FONT_PX[n.kind];
+      if (fontPx * k < MIN_LABEL_PX || labelFade <= 0.02) continue;
+      g.globalAlpha = Math.min(1, a * 1.6) * (n.kind === 'leaf' ? 0.75 : 0.95) * labelFade;
+      g.font = `400 ${fontPx * k}px Geist, 'Helvetica Neue', Arial, sans-serif`;
+      g.fillText(n.name, x + r + 8 * k, y);
+    }
+
+    if (graph.coreGone || age(0) < 0) { g.globalAlpha = 1; return; }
+    // Once the sunset is under way the core lives behind the water, like the real sun: nothing of it is drawn below the horizon.
+    g.save();
+    if (sun) { g.beginPath(); g.rect(0, 0, w, sun.horizon); g.clip(); }
+    // The core glows more as the brain fills in; the glow hands over to the sky as it sets.
+    const glowR = cr * (2.2 + 3 * graph.glow), glowA = 0.4 * graph.glow * (1 - p);
+    if (glowA > 0.01) {
+      const halo = g.createRadialGradient(cx, cy, cr * 0.6, cx, cy, glowR);
+      halo.addColorStop(0, rgbStr(colors.copper, glowA)); halo.addColorStop(1, rgbStr(colors.copper, 0));
+      g.globalAlpha = 1; g.fillStyle = halo;
+      g.beginPath(); g.arc(cx, cy, glowR, 0, Math.PI * 2); g.fill();
+    }
+    // The core itself, taking on the sun's colours on its way to the sun's place.
+    g.globalAlpha = 1;
+    g.fillStyle = rgbStr(colors.copper);
+    g.beginPath(); g.arc(cx, cy, cr, 0, Math.PI * 2); g.fill();
+    if (p > 0) {
+      const face = g.createLinearGradient(0, cy - cr, 0, cy + cr);
+      face.addColorStop(0, rgbStr(colors.sun[0])); face.addColorStop(0.52, rgbStr(colors.sun[1])); face.addColorStop(1, rgbStr(colors.sun[2]));
+      g.globalAlpha = smooth(p);
+      g.fillStyle = face;
+      g.beginPath(); g.arc(cx, cy, cr, 0, Math.PI * 2); g.fill();
+    }
+    g.restore();
+    const label = 1 - smooth(p / 0.25);
+    if (label > 0.02 && FONT_PX.core * k >= MIN_LABEL_PX) {
+      g.globalAlpha = Math.min(1, age(0) * 1.6) * 0.95 * label;
+      g.fillStyle = rgbStr(colors.copper);
+      g.font = `700 ${FONT_PX.core * k}px Geist, 'Helvetica Neue', Arial, sans-serif`;
+      g.fillText(nodes[0].name, cx + cr + 8 * k, cy);
+    }
+    g.globalAlpha = 1;
+  };
+
+  const showGraphRange = (from, to) => {
+    const now = performance.now();
+    for (let i = from; i <= to; i++) graph.born[i] = now;
+    graph.shown = Math.max(graph.shown, to + 1);
+    const count = to + 1;
+    $('gCap').innerHTML = `graph view · <b>${count}</b> ${count === 1 ? 'note' : 'notes'}`;
+    // The original ticks as it grows, getting louder as the batches get bigger, but loose rather than uniform:
+    // about two batches in three tick, each a little early or late, louder or softer, and big batches sometimes scatter a second tick.
+    if (from > 0 && from === to && from <= WORK_WORDS.length) sfx('pop', 0.06 * (0.75 + Math.random() * 0.5));
+    if (from > 0) {
+      const base = Math.min(0.08, 0.025 + (to - from) * 0.003);
+      if (Math.random() < 0.67) sfx('grain', base * (0.55 + Math.random() * 0.8), Math.random() * 0.05);
+      if (to - from > 6 && Math.random() < 0.3) sfx('grain', base * (0.3 + Math.random() * 0.4), 0.03 + Math.random() * 0.08);
+    }
+    drawGraph();
+  };
+  const resetGraph = () => {
+    graph.born.fill(-1);
+    graph.shown = 0;
+    graph.coreGone = false; graph.done = false; graph.sun = null;
+    graph.cam.scale = 4; graph.cam.rot = 0; graph.glow = 0; graph.set = 0;
+    showGraphRange(0, 0);
+  };
+  const setGraphActive = (on) => { graph.active = on; if (on) drawGraph(); };
+  // Where the real sun and horizon sit on the graph's canvas (the sunset scene is laid out, just not shown yet).
+  const measureSun = () => {
+    sizeCanvas();
+    const c = graph.canvas.getBoundingClientRect(), s = $('sun').getBoundingClientRect(), hz = $('horizon').getBoundingClientRect();
+    graph.sun = { x: s.left + s.width / 2 - c.left, y: s.top + s.height / 2 - c.top, r: s.width / 2, horizon: hz.top - c.top };
+  };
+
+  const build = () => {
+    const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.inOut' } });
+    // The track starts with the timeline, so beat n of the music lands at n * BEAT_S.
+    const onBeat = (t) => Math.ceil(t / BEAT_S - 1e-6) * BEAT_S;
+    const onBar = (t) => Math.ceil(t / (4 * BEAT_S) - 1e-6) * 4 * BEAT_S;
+    const fxAt = (t, name, ...args) => tl.call(sfx, [name, ...args], t);
+    // The backing track follows the story: each scene sets the arrangement (always applied, even when skipping).
+    // Called a moment before the bar it should land on; the synth applies it exactly on that bar line.
+    const mixAt = (t, name, rampS) => tl.call(() => { if (window.Techno) Techno.section(name, rampS); }, null, Math.max(0, t - 0.25));
+    mixAt(0, 'intro', 0.01);
+    const initial = () => {
+      guideState.t = 0;
+      drawGuides();
+    };
+    tl.call(initial, null, 0);
+    cut(tl, scenes[0], 0);
+
+    // 1. H, measured; the i arrives on beat 2 and the guides re-measure.
+    const Bt = BEAT_S;
+    tl.fromTo(I, { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, 2 * Bt)
+      .fromTo(guideState, { t: 0 }, { t: 1, duration: 0.6, onUpdate: drawGuides }, 2 * Bt);
+    fxAt(2 * Bt, 'pop', 0.07);
+    fxAt(0.02, 'shimmer', 1.6, 0.04);
+    fxAt(2 * Bt + 0.15, 'key', 0.05);
+    fxAt(2 * Bt + 0.35, 'key', 0.05);
+
+    // 2. I'm, typed on eighth notes.
+    const IM_AT = 4 * Bt;
+    cut(tl, scenes[1], IM_AT);
+    fxAt(IM_AT, 'whoosh', 0.4, true, 0.14);
+    tl.fromTo('#imWord', { scale: 1.08 }, { scale: 1, duration: 4 * Bt, ease: 'power2.out' }, IM_AT)
+      .fromTo('#imText', { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 1.5 * Bt, ease: 'steps(3)' }, IM_AT + Bt);
+    [1, 1.5, 2].forEach((b) => fxAt(IM_AT + b * Bt, 'key', 0.09));
+
+    // 3. Your, one letter per eighth note.
+    const YOUR_AT = 8 * Bt;
+    cut(tl, scenes[2], YOUR_AT);
+    fxAt(YOUR_AT, 'whoosh', 0.4, false, 0.12);
+    tl.fromTo('#yourWord span', { yPercent: 60, opacity: 0 }, { yPercent: 0, opacity: 1, stagger: Bt / 2, duration: 0.35, ease: 'power3.out' }, YOUR_AT + Bt / 2);
+    [0.5, 1, 1.5, 2].forEach((b) => fxAt(YOUR_AT + b * Bt, 'key', 0.07));
+
+    // 4. Role line, three takes, each on a bar line.
+    const ROLE_AT = 12 * Bt;
+    mixAt(ROLE_AT, 'roles', 1.0);
+    cut(tl, scenes[3], ROLE_AT);
+    tl.set([...slotA, ...slotB], { yPercent: 110 }, ROLE_AT)
+      .set(['#bDot', '#bKey', '#bCode'], { scale: 0, transformOrigin: '50% 50%' }, ROLE_AT)
+      .set('#badge', { x: badgeX(0) }, ROLE_AT)
+      .to([slotA[0], slotB[0]], { yPercent: 0, duration: 0.45, stagger: Bt / 4, ease: 'power3.out' }, ROLE_AT)
+      .fromTo('#signal', { strokeDasharray: 1200, strokeDashoffset: 1200 }, { strokeDashoffset: 0, duration: 2 * Bt, ease: 'none' }, ROLE_AT + Bt / 2)
+      .fromTo('#signalTip', { scaleX: 0, transformOrigin: '0 50%' }, { scaleX: 1, duration: 0.25 }, ROLE_AT + 2.5 * Bt)
+      .to('#bDot', { scale: 1, duration: 0.35, ease: 'back.out(3)' }, ROLE_AT + Bt);
+    fxAt(ROLE_AT + Bt / 2, 'swell', 2 * Bt);
+    for (let k = 0; k < 5; k++) fxAt(ROLE_AT + Bt / 2 + k * (2 * Bt / 5), 'key', 0.05); // each step of the signal line
+    fxAt(ROLE_AT + Bt, 'pop', 0.09);
+    const swap = (from, to, badgeOut, badgeIn, at) => {
+      tl.to('#badge', { x: badgeX(to), duration: 0.45 }, at)
+        .to([slotA[from], slotB[from]], { yPercent: -110, duration: 0.45, stagger: Bt / 8 }, at)
+        .to([slotA[to], slotB[to]], { yPercent: 0, duration: 0.45, stagger: Bt / 8 }, at + Bt / 4)
+        .to(badgeOut, { scale: 0, duration: 0.25 }, at)
+        .to(badgeIn, { scale: 1, duration: 0.35, ease: 'back.out(3)' }, at + Bt / 2);
+      fxAt(at, 'whoosh', 0.35, true, 0.11);
+      fxAt(at + Bt / 2, 'pop', 0.08);
+    };
+    swap(0, 1, '#bDot', '#bKey', ROLE_AT + 4 * Bt);
+    swap(1, 2, '#bKey', '#bCode', ROLE_AT + 8 * Bt);
+
+    // 5. Phrases on the beat, each group twice as fast as the last.
+    const PHRASE_AT = ROLE_AT + 12 * Bt;
+    mixAt(PHRASE_AT, 'phrases', 0.2);
+    fxAt(PHRASE_AT - 2 * Bt, 'riser', 2 * Bt, 0.1);
+    cut(tl, $('s-phrase'), PHRASE_AT);
+    let t = PHRASE_AT;
+    PHRASES.forEach((p, i) => {
+      tl.call(showPhrase, [i], t);
+      t += p.beats * BEAT_S;
+    });
+
+    // 6. The last stamp is the lock screen's clock: the phone starts zoomed in so its clock sits exactly on the stamp,
+    //    then pulls back to reveal the whole phone. The day then runs forward to golden hour.
+    const CLOCK_AT = t;
+    mixAt(CLOCK_AT - 8 * BEAT_S, 'build', 0.3); // congas join for the last two bars of phrases
+    fxAt(CLOCK_AT - 2 * BEAT_S, 'riser', 2 * BEAT_S, 0.12);
+    const ZOOM_S = 4 * BEAT_S;
+    tl.call(resetLock, null, CLOCK_AT)
+      .call(measureLockZoom, null, CLOCK_AT);
+    cut(tl, $('s-clock'), CLOCK_AT);
+    tl.fromTo('#phone',
+      { x: () => lockZoom.x, y: () => lockZoom.y, scale: () => lockZoom.scale, transformOrigin: () => lockZoom.origin },
+      { x: 0, y: 0, scale: 1, duration: ZOOM_S, ease: 'expo.inOut', immediateRender: false }, CLOCK_AT);
+    fxAt(CLOCK_AT, 'swell', ZOOM_S * 0.7);
+    fxAt(CLOCK_AT + ZOOM_S, 'pop', 0.07);
+    // Once the phone has settled, run the day forward with a tick-tock on every beat.
+    const SPIN_AT = CLOCK_AT + ZOOM_S;
+    for (let k = 0; k * BEAT_S < CLOCK_SPIN_S; k++) fxAt(SPIN_AT + k * BEAT_S, 'tick', k % 2 === 1, 0.09);
+    CLOCK_STEPS.forEach((st) => tl.call(setLockTime, [st.minutes], SPIN_AT + st.at));
+    const LANDED = SPIN_AT + CLOCK_SPIN_S;
+    // Golden hour: the alarm screen drops in, the phone buzzes and rings.
+    tl.fromTo('#alarm', { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out' }, LANDED)
+      .fromTo('#phone', { x: 0 }, { x: 5, duration: 0.045, repeat: 11, yoyo: true, ease: 'none' }, LANDED)
+      .set('#phone', { x: 0 }, LANDED + 0.6);
+    fxAt(LANDED, 'alarmStart', 0.12);
+
+    fxAt(LANDED, 'thud', 0.35);
+    fxAt(LANDED, 'whoosh', 0.35, false, 0.1);
+    fxAt(LANDED + 0.25, 'pop', 0.06); fxAt(LANDED + 0.35, 'pop', 0.05); // alarm buttons
+    fxAt(LANDED + 2 * BEAT_S - 0.25, 'tap', 0.12);
+    fxAt(LANDED + 2 * BEAT_S, 'slide', 1.2 * BEAT_S, 0.05);
+    // A finger slides the knob across to stop it.
+    const STOP_AT = LANDED + 4 * BEAT_S - 1.2 * BEAT_S, SLIDE_S = 1.2 * BEAT_S; // the alarm stops on the bar line
+    tl.fromTo('#touchKnob', { autoAlpha: 0, scale: 1.5 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: 'power2.out' }, STOP_AT - 0.25)
+      .to(['#knob', '#touchKnob'], { x: slideTravel, duration: SLIDE_S, ease: 'power2.inOut' }, STOP_AT)
+      .to('#slideText', { autoAlpha: 0, duration: 0.3 }, STOP_AT)
+      .to('#touchKnob', { autoAlpha: 0, scale: 0.8, duration: 0.2 }, STOP_AT + SLIDE_S)
+      .to('#alarm', { autoAlpha: 0, duration: 0.3, ease: 'power1.in' }, STOP_AT + SLIDE_S + 0.05);
+    fxAt(STOP_AT + SLIDE_S, 'alarmStop');
+
+    fxAt(STOP_AT + SLIDE_S, 'click', 0.1);
+    // Then a swipe up from the home bar: the lock screen slides away to the home screen.
+    const SWIPE_AT = STOP_AT + SLIDE_S + 2 * BEAT_S;
+    tl.fromTo('#touchUp', { autoAlpha: 0, y: 0, scale: 1.4 }, { autoAlpha: 1, scale: 1, duration: 0.15 }, SWIPE_AT - 0.15)
+      .to('#touchUp', { y: () => -$('screen').offsetHeight * 0.45, autoAlpha: 0, duration: 0.55, ease: 'power2.in' }, SWIPE_AT)
+      .to('#lock', { y: () => -$('screen').offsetHeight, duration: 0.55, ease: 'power2.in' }, SWIPE_AT)
+      .to('#lock', { autoAlpha: 0, duration: 0.3, ease: 'power1.in' }, SWIPE_AT + 0.25)
+      .fromTo('#home', { autoAlpha: 0, scale: 1.1 }, { autoAlpha: 1, scale: 1, duration: 0.6, ease: 'power3.out' }, SWIPE_AT + 0.2)
+      .fromTo('#home .apps .app', { scale: 0.6, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, stagger: 0.025, ease: 'back.out(2)' }, SWIPE_AT + 0.25);
+    fxAt(SWIPE_AT - 0.15, 'tap', 0.1);
+    fxAt(SWIPE_AT, 'whoosh', 0.6, true, 0.12);
+    fxAt(SWIPE_AT + 0.25, 'shimmer', 1.0, 0.05);
+    [0, 3, 6, 9].forEach((k) => fxAt(SWIPE_AT + 0.25 + k * 0.025, 'pop', 0.05));
+
+    // A finger taps the Workflows app; its icon opens out to fill the screen.
+    const TAP_AT = onBeat(SWIPE_AT + 2 * BEAT_S);
+    const appCentre = () => { const r = rectInScreen('appFlow'), touch = $('touchApp'); return { x: r.left + r.width / 2 - touch.offsetWidth / 2, y: r.top + r.height / 2 - touch.offsetHeight / 2 }; };
+    tl.fromTo('#touchApp', { autoAlpha: 0, scale: 1.5, x: () => appCentre().x, y: () => appCentre().y }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power2.out' }, TAP_AT - 0.3)
+      .to('#appFlow', { scale: 0.86, duration: 0.08, yoyo: true, repeat: 1, ease: 'power1.inOut' }, TAP_AT)
+      .to('#touchApp', { autoAlpha: 0, scale: 0.8, duration: 0.2 }, TAP_AT + 0.1);
+    fxAt(TAP_AT, 'tap', 0.16);
+    const OPEN_AT = TAP_AT + 0.18, OPEN_S = 0.6;
+    const screenRadius = () => parseFloat(getComputedStyle($('screen')).borderTopLeftRadius) || 0;
+    tl.set('#appOpen', {
+      autoAlpha: 1, backgroundColor: () => cssVar('--copper'),
+      left: () => rectInScreen('appFlow').left, top: () => rectInScreen('appFlow').top,
+      width: () => rectInScreen('appFlow').width, height: () => rectInScreen('appFlow').height,
+      borderRadius: () => rectInScreen('appFlow').width * 0.26,
+    }, OPEN_AT)
+      .to('#appOpen', { left: 0, top: 0, width: () => $('screen').offsetWidth, height: () => $('screen').offsetHeight, borderRadius: screenRadius, duration: OPEN_S, ease: 'power3.inOut' }, OPEN_AT)
+      .to('#appOpen', { backgroundColor: () => cssVar('--ink'), duration: OPEN_S * 0.7, ease: 'power2.in' }, OPEN_AT + OPEN_S * 0.3)
+      .fromTo('#appOpen svg', { autoAlpha: 1, scale: 1 }, { autoAlpha: 0, scale: 1.6, duration: OPEN_S, ease: 'power2.in' }, OPEN_AT);
+    fxAt(OPEN_AT, 'whoosh', OPEN_S, true, 0.13);
+
+    // The camera pushes into the phone until its screen is the whole view; the workflow fades up inside it.
+    const PUSH_AT = OPEN_AT + OPEN_S - 0.05, PUSH_S = 1.0;
+    tl.call(measurePush, null, PUSH_AT)
+      .call(resetFlow, null, PUSH_AT)
+      .set('#s-flow', { clipPath: 'none' }, PUSH_AT)
+      .fromTo('#phone', { x: 0, y: 0, scale: 1 },
+        { x: () => pushZoom.x, y: () => pushZoom.y, scale: () => pushZoom.scale, transformOrigin: () => pushZoom.origin, duration: PUSH_S, ease: 'power3.inOut', immediateRender: false }, PUSH_AT)
+      .fromTo('#s-flow', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45, ease: 'power1.out', immediateRender: false }, PUSH_AT + PUSH_S * 0.6)
+      .fromTo(cam, { s: () => FLOW_S * 0.78 }, { s: () => FLOW_S, duration: PUSH_S, ease: 'power3.out', onUpdate: applyCam, immediateRender: false }, PUSH_AT + PUSH_S * 0.6);
+    fxAt(PUSH_AT, 'swell', PUSH_S * 0.9);
+    fxAt(PUSH_AT + PUSH_S * 0.9, 'thud', 0.4);
+
+    // 7. The workflow; the camera follows the data through each node.
+    const W0 = onBar(PUSH_AT + PUSH_S + 0.3);
+    // The canvas waits on its Execute button: the cursor glides over and clicks it on the downbeat, and the trigger fires.
+    const execPoint = () => { const r = rectOnStage('execBtn'); return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.55 }; };
+    const setExec = (running) => { $('execBtn').classList.toggle('is-running', running); $('execLabel').textContent = running ? 'Executing workflow' : 'Execute workflow'; };
+    tl.call(setExec, [false], PUSH_AT)
+      .fromTo('#execBtn', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out', immediateRender: false }, PUSH_AT + PUSH_S * 0.7)
+      .fromTo('#pointer', { autoAlpha: 0, scale: 1, x: () => W * 0.72, y: () => Ht * 0.3 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, PUSH_AT + PUSH_S * 0.8)
+      .to('#pointer', { x: () => execPoint().x, y: () => execPoint().y, duration: W0 - (PUSH_AT + PUSH_S * 0.8) - 0.25, ease: 'power3.inOut' }, PUSH_AT + PUSH_S * 0.8 + 0.05)
+      .to('#pointer', { scale: 0.82, duration: 0.07, yoyo: true, repeat: 1, ease: 'power1.inOut' }, W0)
+      .to('#execBtn', { scale: 0.94, duration: 0.07, yoyo: true, repeat: 1, ease: 'power1.inOut' }, W0)
+      .fromTo('#ripple', { autoAlpha: 0.7, scale: 0, x: () => execPoint().x, y: () => execPoint().y }, { autoAlpha: 0, scale: 1, duration: 0.5, ease: 'power2.out', immediateRender: false }, W0)
+      .call(setExec, [true], W0 + 0.05)
+      .to('#pointer', { autoAlpha: 0, duration: 0.3 }, W0 + 0.4);
+    fxAt(PUSH_AT + PUSH_S * 0.8 + 0.05, 'whoosh', 1.0, true, 0.05);
+    fxAt(W0, 'click', 0.16);
+    mixAt(W0, 'drop', 0.05);
+    fxAt(W0, 'thud', 0.4);
+    cut(tl, $('s-flow'), W0);
+    tl.call(resetFlow, null, W0);
+    const travel = (a, b, at, dur) => {
+      const i = edgeIndex(a, b), proxy = { p: 0 };
+      fxAt(at, 'whoosh', dur, true, 0.045); // every packet has its own swish
+      tl.fromTo(proxy, { p: 0 }, { p: 1, duration: dur, ease: 'power1.inOut', onUpdate: () => placePacket(i, proxy.p) }, at)
+        .call(lightEdge, [i], at + dur);
+    };
+    const run = (id, at, dur) => { tl.call(setNode, [id, 'run'], at).call(setNode, [id, 'ok'], at + dur); };
+    // Everything lands on the grid: packets take one beat, nodes finish on the eighth after they start.
+    const beatAt = (beats) => W0 + beats * BEAT_S, b = BEAT_S;
+    const camAt = (x, y, beats, dur = 1) => { fxAt(beatAt(beats), 'swell', dur * b * 0.9); return tl.to(cam, { x, y, duration: dur * b, ease: 'power2.inOut', onUpdate: applyCam }, beatAt(beats)); };
+    run('trig', beatAt(0), b / 2);
+    [1, 3, 5, 7, 9].forEach((beat) => fxAt(beatAt(beat), 'whoosh', b, true, 0.07));
+    ['bq', 'ga4', 'logs'].forEach((id) => travel('trig', id, beatAt(1), b));
+    camAt(600, 500, 1);
+    ['bq', 'ga4', 'logs'].forEach((id, k) => run(id, beatAt(2), b / 2 + k * (b / 4)));
+    ['bq', 'ga4', 'logs'].forEach((id) => travel(id, 'merge', beatAt(3), b));
+    camAt(1000, 500, 3);
+    run('merge', beatAt(4), b / 2);
+    travel('merge', 'code', beatAt(5), b); camAt(1400, 500, 5);
+    run('code', beatAt(6), b / 2);
+    travel('code', 'if', beatAt(7), b); camAt(1800, 500, 7);
+    run('if', beatAt(8), b / 4);
+    tl.call(dimQuietBranch, null, beatAt(8.5));
+    travel('if', 'claude', beatAt(9), b); travel('if', 'linear', beatAt(9), b); camAt(2200, 410, 9);
+    run('linear', beatAt(10), b / 2);
+    tl.call(setNode, ['claude', 'run'], beatAt(10));
+    camAt(2200, 340, 11, 2.4); // settle on Claude while it thinks
+    // Dive into the Claude node's mark; it ends exactly as the chat irises open out of it, so nothing holds still.
+    const C = beatAt(16); // four bars of workflow
+    const IRIS_S = 0.55;
+    const DIVE_S = 2 * b, DIVE_AT = C - IRIS_S - DIVE_S;
+    const sparkX = nodeById.claude.x - NODE_W / 2 + 41, sparkY = nodeById.claude.y;
+    tl.to(cam, { x: sparkX, y: sparkY, s: () => FLOW_S * 9, duration: DIVE_S, ease: 'power3.in', onUpdate: applyCam }, DIVE_AT)
+      .to(cam, { s: () => FLOW_S * 13, duration: IRIS_S + 0.1, ease: 'none', onUpdate: applyCam }, DIVE_AT + DIVE_S); // keep moving through the iris
+    fxAt(DIVE_AT, 'whoosh', DIVE_S, true, 0.17);
+    fxAt(DIVE_AT, 'riser', DIVE_S, 0.1);
+    tl.set('#s-chat', { autoAlpha: 1, clipPath: 'circle(0% at 50% 50%)' }, C - IRIS_S)
+      .to('#s-chat', { clipPath: 'circle(75% at 50% 50%)', duration: IRIS_S, ease: 'power3.in' }, C - IRIS_S)
+      .set('#s-chat', { clipPath: 'none' }, C + 0.05);
+    fxAt(C - IRIS_S, 'shimmer', 1.2, 0.07);
+
+    // 8. Inside the node, on the beat: message on the downbeat, Claude opens on beat 3 and types for two bars.
+    const B = BEAT_S;
+    cut(tl, $('s-chat'), C);
+    mixAt(C, 'chat', 0.05);
+    fxAt(C, 'thud', 0.4);
+    fxAt(C, 'pop', 0.07);
+    fxAt(C + 2 * B, 'pop', 0.06);
+    fxAt(C + 2 * B, 'whoosh', 0.3, true, 0.07);
+    tl.call(resetTyped, null, C)
+      .set('#typing', { display: 'flex' }, C)
+      .fromTo('#msgIn', { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power3.out' }, C)
+      .fromTo('#msgOut', { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power3.out' }, C + 2 * B)
+      .set('#typing', { display: 'none' }, C + 4 * B);
+    for (let k = 0; k < 4; k++) fxAt(C + 2 * B + k * (B / 2), 'tap', 0.035); // typing indicator
+    const TYPE_BEATS = 8;
+    tl.fromTo(typed, { n: 0 }, { n: REPLY.length, duration: TYPE_BEATS * B, ease: 'none', onUpdate: renderTyped }, C + 4 * B);
+    // Typing sounds on every sixteenth, accented on the beat, so the reply plays as the hi-hat.
+    for (let k = 0; k < TYPE_BEATS * 4; k++) if (k % 4 !== 1) fxAt(C + 4 * B + k * (B / 4), 'key', k % 4 === 0 ? 0.06 : 0.04); // typing follows the hats
+    const SAVED = onBar(C + 4 * B + TYPE_BEATS * B);
+    tl.fromTo('#saved', { autoAlpha: 0, scale: 0.85, y: 0 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2)' }, SAVED);
+    fxAt(SAVED, 'thud', 0.32); fxAt(SAVED, 'grain', 0.07); fxAt(SAVED, 'pop', 0.09);
+    fxAt(SAVED + 0.3, 'whoosh', 1.2, true, 0.05); // the cursor's glide
+    // A cursor glides onto the chip and clicks it; the chip opens out into the vault window.
+    const O = SAVED + 4 * B, MORPH_S = 0.75; // the vault opens on the next bar line
+    const MORPH_AT = O - MORPH_S, CLICK = MORPH_AT - 0.2;
+    const chipPoint = () => { const r = rectOnStage('saved'); return { x: r.left + r.width * 0.55, y: r.top + r.height * 0.6 }; };
+    tl.fromTo('#pointer', { autoAlpha: 0, scale: 1, x: () => W * 0.8, y: () => Ht * 0.88 }, { autoAlpha: 1, duration: 0.2 }, SAVED + 0.25)
+      .to('#pointer', { x: () => chipPoint().x, y: () => chipPoint().y, duration: CLICK - SAVED - 0.45, ease: 'power3.inOut' }, SAVED + 0.3)
+      .to('#pointer', { scale: 0.82, duration: 0.07, yoyo: true, repeat: 1, ease: 'power1.inOut' }, CLICK)
+      .to('#saved', { scale: 0.93, duration: 0.07, yoyo: true, repeat: 1, ease: 'power1.inOut' }, CLICK)
+      .fromTo('#ripple', { autoAlpha: 0.7, scale: 0, x: () => chipPoint().x, y: () => chipPoint().y }, { autoAlpha: 0, scale: 1, duration: 0.5, ease: 'power2.out', immediateRender: false }, CLICK);
+    fxAt(CLICK, 'click', 0.16);
+    tl.set('#morph', {
+      autoAlpha: 1, borderRadius: 999, backgroundColor: () => cssVar('--copper'),
+      left: () => rectOnStage('saved').left, top: () => rectOnStage('saved').top, width: () => rectOnStage('saved').width, height: () => rectOnStage('saved').height,
+    }, MORPH_AT)
+      .set('#saved', { autoAlpha: 0 }, MORPH_AT)
+      .to('#morph', {
+        borderRadius: 0, left: 0, top: 0, width: () => W, height: () => Ht,
+        duration: MORPH_S, ease: 'power3.inOut',
+      }, MORPH_AT)
+      .to('#morph', { backgroundColor: () => cssVar('--ink'), duration: MORPH_S * 0.6, ease: 'power2.in' }, MORPH_AT + MORPH_S * 0.4)
+      .to('#pointer', { autoAlpha: 0, duration: 0.2 }, MORPH_AT);
+    fxAt(MORPH_AT, 'whoosh', 0.6, false, 0.1);
+
+    // 9. The note lands in the vault, then the graph view grows faster and faster around the core.
+    cut(tl, $('s-vault'), O);
+    fxAt(O, 'shimmer', 1.0, 0.05);
+    for (let k = 0; k < 4; k++) fxAt(O + 0.1 + k * 0.06, 'pop', 0.04); // file tree settling
+    tl.set('#morph', { autoAlpha: 0 }, O);
+    for (let k = 0; k < 7; k++) fxAt(O + 0.2 + k * (B / 2), 'key', 0.06);
+    tl.call(resetGraph, null, O)
+      .call(setGraphActive, [false], O)
+      .set(['.tree', '#note', '#s-vault .app-cap'], { autoAlpha: 1 }, O)
+      .set(['#graphView'], { autoAlpha: 0 }, O)
+      .fromTo('#vault', { autoAlpha: 0, y: 24, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'power3.out' }, O)
+      .fromTo('#note .nl', { autoAlpha: 0, x: -12 }, { autoAlpha: 1, x: 0, stagger: B / 2, duration: 0.25 }, O + 0.2);
+    const G = onBar(O + 0.2 + 7 * (B / 2) + B);
+    tl.call(setGraphActive, [true], G - 0.3);
+    const btnPoint = () => { const r = rectOnStage('graphBtn'); return { x: r.left + r.width * 0.45, y: r.top + r.height * 0.6 }; };
+    const CLICK_G = G - 0.5;
+    tl.call(() => $('graphBtn').classList.remove('is-pressed'), null, O)
+      .set('#vault', { clearProps: 'width,height,borderRadius,backgroundColor,borderColor' }, O)
+      .set('#s-vault', { clearProps: 'backgroundColor' }, O)
+      .set('#graphCanvas', { autoAlpha: 1 }, O)
+      .set('#graphBtn', { autoAlpha: 1 }, O)
+      .fromTo('#pointer', { autoAlpha: 0, scale: 1, x: () => W * 0.55, y: () => Ht * 0.75 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, G - 2 * B)
+      .to('#pointer', { x: () => btnPoint().x, y: () => btnPoint().y, duration: 2 * B - 0.75, ease: 'power3.inOut' }, G - 2 * B + 0.05)
+      .to('#pointer', { scale: 0.82, duration: 0.07, yoyo: true, repeat: 1, ease: 'power1.inOut' }, CLICK_G)
+      .fromTo('#ripple', { autoAlpha: 0.7, scale: 0, x: () => btnPoint().x, y: () => btnPoint().y }, { autoAlpha: 0, scale: 1, duration: 0.5, ease: 'power2.out', immediateRender: false }, CLICK_G)
+      .call(() => $('graphBtn').classList.add('is-pressed'), null, CLICK_G)
+      .to('#pointer', { autoAlpha: 0, duration: 0.2 }, CLICK_G + 0.25)
+      .to(['.tree', '#note', '#graphBtn'], { autoAlpha: 0, duration: 0.25 }, G - 0.25)
+      .to('#graphView', { autoAlpha: 1, duration: 0.25 }, G - 0.25)
+      .to('#vault', { width: () => W, height: () => Ht, borderRadius: 0, duration: 0.7, ease: 'power3.inOut' }, G - 0.25); // the brain gets the whole screen
+    fxAt(G - 2 * B + 0.05, 'whoosh', 1.0, true, 0.05);
+    fxAt(CLICK_G, 'click', 0.16);
+    let at = G + B;
+    WORD_BEATS.forEach((beats, k) => { tl.call(showGraphRange, [k + 1, k + 1], at); at += beats * B; });
+    const WORDS_END = at;
+    // The notes keep pouring in on every sixteenth, in swelling batches, until the sunset begins.
+    const TS = onBar(WORDS_END + POUR_BEATS * B), SET_S = SET_BEATS * B, T1 = TS + SET_S;
+    const firstLeafNode = 1 + WORK_WORDS.length, leafTotal = graph.nodes.length - firstLeafNode;
+    const pours = Math.max(1, Math.floor((TS - WORDS_END - 0.1) / (B / 4)));
+    const weightSum = Array.from({ length: pours }, (_, k) => (k + 1) ** 2).reduce((s, v) => s + v, 0);
+    let nextNode = firstLeafNode, poured = 0;
+    for (let k = 0; k < pours; k++) {
+      poured += (k + 1) ** 2;
+      const last = firstLeafNode + Math.round(leafTotal * poured / weightSum) - 1;
+      if (last >= nextNode) { tl.call(showGraphRange, [nextNode, last], WORDS_END + k * (B / 4)); nextNode = last + 1; }
+    }
+    fxAt(G, 'thud', 0.45);
+    fxAt(G, 'shimmer', 1.2, 0.05);
+    fxAt(G - 2 * B, 'riser', 2 * B, 0.08);
+    // The camera pulls back and slowly turns while the brain fills in; the core's glow builds.
+    tl.fromTo(graph.cam, { scale: 4 }, { scale: 0.9, duration: TS - G, ease: 'power2.inOut' }, G)
+      .fromTo(graph.cam, { rot: 0 }, { rot: 0.45, duration: T1 - G, ease: 'sine.inOut' }, G)
+      .fromTo(graph, { glow: 0 }, { glow: 1, duration: TS - G, ease: 'sine.in' }, G)
+      .to(['#gCap', '#s-vault .app-cap'], { autoAlpha: 0, duration: 0.5 }, TS - 0.5);
+
+    // 10. The brain becomes the night sky. The sunset scene comes up underneath as the window dissolves; the notes
+    //     shrink to stars and drift up; the core pulls free of its links and sets into the sun's place.
+    tl.set('#s-vault', { zIndex: 2 }, TS)
+      .set(['#nameplate', '#sunTime', '#sun'], { autoAlpha: 0 }, TS)
+      .set('#s-final', { autoAlpha: 1 }, TS)
+      .call(measureSun, null, TS)
+      .set(['#s-vault', '#vault'], { backgroundColor: 'rgba(0,0,0,0)', borderColor: 'rgba(0,0,0,0)' }, TS)
+      .to('#graphView', { backgroundColor: 'rgba(0,0,0,0)', duration: SET_S * 0.7, ease: 'power1.inOut' }, TS)
+      .fromTo('#sky', { autoAlpha: 0 }, { autoAlpha: 1, duration: SET_S * 0.8, ease: 'power1.inOut' }, TS)
+      .fromTo(['#sea', '#sunGlow'], { autoAlpha: 0 }, { autoAlpha: 1, duration: SET_S * 0.7, ease: 'power1.inOut' }, TS + SET_S * 0.25)
+      .fromTo('#horizon', { scaleX: 0 }, { scaleX: 1, duration: SET_S * 0.5, ease: 'power3.inOut' }, TS + SET_S * 0.4)
+      .fromTo(graph, { set: 0 }, { set: 1, duration: SET_S, ease: 'none' }, TS)
+      .fromTo('#reflect', { autoAlpha: 0 }, { autoAlpha: 0.6, duration: 1.8, ease: 'power2.out' }, T1 - 0.6);
+    fxAt(TS, 'shimmer', SET_S, 0.05);
+    mixAt(TS + 4 * B, 'sun', 1.0); // a one-bar breakdown before the name
+
+    // Hand-off: the real sun takes over from the core, the last stars fade, and the sun starts to set.
+    const A = T1 + STAR_FADE_S;
+    tl.to('#sun', { autoAlpha: 1, duration: SUN_SWAP_S, ease: 'power1.inOut' }, T1)
+      .call(() => { graph.coreGone = true; }, null, T1 + SUN_SWAP_S)
+      .to('#graphCanvas', { autoAlpha: 0, duration: STAR_FADE_S, ease: 'power1.in' }, T1)
+      .call(() => { graph.done = true; }, null, A)
+      .call(setGraphActive, [false], A + 0.1)
+      .fromTo('#sun', { y: 0 }, { y: () => $('sun').offsetHeight * 0.2, duration: 9, ease: 'sine.inOut' }, T1); // slowly setting
+    cut(tl, scenes[4], A);
+    tl.set('#s-vault', { zIndex: 0 }, A);
+    // The name arrives as the sun lands, with the whole beat, kick included.
+    const NAME_AT = T1;
+    // The drop: the synth fires its sub boom, crash and chord on this exact downbeat (see SECTIONS.final.slam).
+    mixAt(NAME_AT, 'final', 0.05);
+    fxAt(NAME_AT - 2 * B, 'riser', 2 * B, 0.1);
+    tl.fromTo('#nameplate', { autoAlpha: 0, y: 24, scale: 1.06, transformOrigin: '0% 50%' }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, NAME_AT)
+      .fromTo('#sunGlow', { scale: 1 }, { scale: 1.1, duration: 0.12, ease: 'power2.out', immediateRender: false }, NAME_AT)
+      .to('#sunGlow', { scale: 1, duration: 1.4, ease: 'power2.out' }, NAME_AT + 0.12)
+      .fromTo('#sunTime', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, NAME_AT + 0.4);
+    fxAt(NAME_AT, 'pop', 0.08);
+    fxAt(NAME_AT, 'shimmer', 1.6, 0.06);
+    fxAt(NAME_AT + 0.4, 'key', 0.05);
+    tl.eventCallback('onComplete', () => { $('skipBtn').hidden = true; $('replayBtn').hidden = false; });
+    return tl;
+  };
+
+  const start = () => {
+    measureGuides();
+    layoutStage();
+    buildFlow();
+    layoutFlow();
+    buildGraph();
+    resetGraph();
+    const tl = build();
+    // Overlays only exist mid-intro; keep them hidden on the waiting screen and at rest.
+    gsap.set(['#ripple', '#pointer', '#morph'], { autoAlpha: 0 });
+    gsap.set('#sunGlow', { xPercent: -50, yPercent: -50, x: 0, y: 0 });
+    gsap.set('#sun', { xPercent: -50, yPercent: 0, x: 0, y: 0 });
+    introLength = Math.round(tl.duration());
+    renderSoundLabel();
+    const play = $('playBtn'), ring = play.querySelector('.pp-ring');
+    let state = 'ready';
+    const setState = (s) => {
+      state = s;
+      play.dataset.state = s;
+      ring.classList.toggle('pp-pulse', s === 'ready');
+      const labels = { ready: 'Start the intro with sound', playing: 'Pause the intro', paused: 'Resume the intro' };
+      play.setAttribute('aria-label', labels[s] || '');
+      $('ppLabel').textContent = s === 'paused' ? 'Paused · click to resume' : 'Click here to start';
+    };
+    audio.isPlaying = () => state === 'playing';
+
+    const begin = () => { setState('playing'); audio.restart(); tl.play(0); };
+    const pause = () => { setState('paused'); gsap.globalTimeline.pause(); audio.pause(); };
+    const resume = () => { setState('playing'); gsap.globalTimeline.resume(); audio.play(); };
+    const finish = () => { setState('done'); gsap.globalTimeline.resume(); };
+    const toggle = () => {
+      if (state === 'ready') begin();
+      else if (state === 'playing') pause();
+      else if (state === 'paused') resume();
+    };
+
+    play.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+    // Tapping anywhere on the intro also pauses or resumes (handy on touch screens); links and buttons keep their own job.
+    $('stage').addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      toggle();
+    });
+    // Space pauses or resumes while the intro is on screen (buttons and links keep their own Space behaviour).
+    document.addEventListener('keydown', (e) => {
+      if (e.code !== 'Space' || e.target.closest('a, button, input, textarea') || state === 'done') return;
+      if ($('stage').getBoundingClientRect().bottom < window.innerHeight * 0.5) return;
+      e.preventDefault();
+      toggle();
+    });
+    tl.eventCallback('onComplete', () => {
+      finish();
+      $('skipBtn').hidden = true; $('replayBtn').hidden = false;
+    });
+
+    $('skipBtn').addEventListener('click', () => {
+      if (state === 'ready') audio.play();
+      if (window.Techno) { Techno.fx('alarmStop'); Techno.section('final', 1.5, true); }
+      finish();
+      skipping = true; tl.progress(1); skipping = false;
+    });
+    $('replayBtn').addEventListener('click', () => {
+      $('replayBtn').hidden = true; $('skipBtn').hidden = false;
+      begin();
+    });
+    window.addEventListener('resize', () => { measureGuides(); layoutStage(); layoutFlow(); });
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish();
+      skipping = true; tl.progress(1); skipping = false;
+    } else {
+      // Waiting frame: the measured H behind the start button.
+      gsap.set(scenes, { autoAlpha: 0 });
+      gsap.set(scenes[0], { autoAlpha: 1 });
+      gsap.set('.hi-wrap', { autoAlpha: 0.14 });
+      tl.fromTo('.hi-wrap', { autoAlpha: 0.14 }, { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }, 0);
+      tl.pause(0);
+      setState('ready');
+    }
+  };
+
+  let started = false;
+  const once = () => { if (!started) { started = true; start(); } };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(once);
+  setTimeout(once, 1500);
+})();
+</script>
+
+</body></html>

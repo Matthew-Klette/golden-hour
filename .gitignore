@@ -1,0 +1,6 @@
+dist/
+video/node_modules/
+video/frames/
+video/out/
+video/tmp/
+.DS_Store
