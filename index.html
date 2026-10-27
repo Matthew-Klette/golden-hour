@@ -25,7 +25,8 @@
   --wall-low: #24161C;
   --font-display: "Geist", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --gutter: clamp(1rem, 4vw, 3rem);
+  /* Never less than the notch or rounded corner on a phone held sideways (viewport-fit=cover). */
+  --gutter: max(clamp(1rem, 4vw, 3rem), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   --claude: #D97757;
   /* Viewport height units, as variables so the video capture can pin them to exact pixels. */
   --vh: 1vh;
@@ -35,6 +36,8 @@
 * { box-sizing: border-box; }
 /* 16px up to 1920 x 1080; bigger screens scale everything up with them (32px at 4K), limited by height on ultrawides. */
 html { font-size: max(16px, min(0.8333vw, calc(1.4815 * var(--vh)))); }
+/* Tablets in portrait are read at arm's length: everything one size up. */
+@media (min-width: 700px) and (max-aspect-ratio: 4/5) { html { font-size: 18px; } }
 /* No visible scrollbar: a classic one narrows the stage and pulls every centred scene left of the screen's centre. Scrolling still works. */
 html { scrollbar-width: none; }
 html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; }
@@ -63,16 +66,17 @@ a { color: inherit; }
 
 .big { font-size: clamp(5rem, 17vw, 13rem); font-weight: 600; line-height: 1; letter-spacing: -0.04em; }
 .mid { font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; line-height: 1; letter-spacing: -0.035em; }
-.line { font-size: clamp(1.9rem, 6vw, 4.4rem); line-height: 1.1; letter-spacing: -0.03em; }
-.mono { font-family: var(--font-mono); font-size: 0.75rem; color: var(--mist); font-variant-numeric: tabular-nums; }
+/* The 9vw cap keeps the longest role ("Creative Technologist") inside the narrowest phones. */
+.line { font-size: min(4.4rem, max(1.9rem, 6vw), 9vw); line-height: 1.1; letter-spacing: -0.03em; }
+.mono { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--mist); font-variant-numeric: tabular-nums; }
 
 .controls {
   position: absolute; right: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); z-index: 5;
   display: flex; gap: 0.5rem;
 }
 .controls button {
-  font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--paper); background: color-mix(in srgb, var(--ink) 55%, transparent);
+  font: 500 0.8125rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--paper); background: color-mix(in srgb, var(--paper) 14%, var(--ink));
   border: 0.0625rem solid color-mix(in srgb, var(--paper) 30%, transparent);
   padding: 0.6rem 0.9rem; border-radius: 62.4375rem; cursor: pointer; backdrop-filter: blur(0.375rem);
 }
@@ -80,10 +84,13 @@ a { color: inherit; }
 
 /* The exported video has no controls. */
 html.capture .playpause, html.capture .controls { display: none !important; }
+/* Before the start, the measured H stays a faint backdrop; its pixel labels would read as debug text. */
+#stage:has(.playpause[data-state="ready"]) .dim { visibility: hidden; }
 
 /* Centre play button. Ready and paused: solid copper call to action. Playing and done: gone. */
 .playpause {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6;
+  width: max-content; max-width: calc(100% - 2 * var(--gutter)); text-align: center;
   display: grid; justify-items: center; gap: 0.9rem;
   background: none; border: 0; padding: 1rem; cursor: pointer; color: var(--paper); font-family: var(--font-display);
   transition: opacity 0.25s ease;
@@ -217,8 +224,11 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .morph { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; visibility: hidden; opacity: 0; background: var(--copper); }
 
 /* Shared caption for the tool scenes */
-.app-cap { position: absolute; left: var(--gutter); top: calc(var(--gutter) + env(safe-area-inset-top, 0px)); z-index: 3; max-width: calc(100% - 2 * var(--gutter) - 9.375rem); line-height: 1.6; }
+.app-cap { position: absolute; left: var(--gutter); top: calc(var(--gutter) + env(safe-area-inset-top, 0px)); z-index: 3; max-width: calc(100% - 2 * var(--gutter)); line-height: 1.6; }
 .app-cap b { color: var(--copper); font-weight: 500; }
+/* Over the moving canvases, captions and the run log keep a backing, so lines and nodes never cross the text. */
+#s-flow .app-cap, .flow-log, #s-vault .app-cap { padding: 0.3rem 0.55rem; margin-left: -0.55rem; border-radius: 0.5rem; background: color-mix(in srgb, var(--ink) 82%, transparent); }
+.flow-log:empty { display: none; }
 .app-cap .tag { margin-left: 0.4rem; padding: 0.1rem 0.45rem; border: 0.0625rem solid currentColor; border-radius: 62.4375rem; font-size: 0.625rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
 .scene.paper .app-cap { color: var(--slate); }
 .scene.paper .app-cap b { color: var(--copper-text); }
@@ -336,7 +346,8 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 #graphCanvas { width: 100%; height: 100%; display: block; }
 .g-cap { position: absolute; left: 1.1rem; top: 0.9rem; color: var(--mist); }
 .g-cap b { color: var(--copper); font-weight: 500; }
-#s-vault .app-cap { top: auto; bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); }
+/* At the bottom the caption shares the row with Skip intro, so it stops short of it. */
+#s-vault .app-cap { top: auto; bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 2 * var(--gutter) - 9.375rem); }
 
 /* 10. the copper point becomes a setting sun over the sea; the name comes in beside it */
 #s-final { place-items: stretch; --horizon: 64%; --sun: min(calc(46 * var(--vh)), 36vw); --sun-x: 70%; }
@@ -372,18 +383,69 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .sun-time { position: absolute; left: var(--gutter); bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); line-height: 1.7; color: var(--paper); opacity: 0.8; }
 .sun-time b { color: var(--copper); font-weight: 500; }
 .nameplate {
+  /* Positioned here; the entrance moves the inner #nameIn, so a rotation can re-place it. */
   position: absolute; left: var(--gutter); top: 50%; transform: translateY(-50%);
   color: var(--paper); max-width: min(40rem, calc(var(--sun-x) - var(--sun) * 0.5 - 2 * var(--gutter))); /* always left of the sun */
 }
 .nameplate h1 { margin: 0; font-size: clamp(3rem, 9vw, 7rem); font-weight: 300; letter-spacing: -0.04em; line-height: 0.95; }
 .nameplate h1 b { font-weight: 700; }
-.nameplate p { margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.04em; color: color-mix(in srgb, var(--paper) 82%, transparent); line-height: 1.8; }
-.nameplate a { color: var(--copper); text-decoration: none; display: inline-block; margin-top: 1.4rem; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; }
-.nameplate a:hover { text-decoration: underline; text-underline-offset: 0.25rem; }
+.nameplate p { margin: 1.4rem 0 0; font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 0.04em; color: color-mix(in srgb, var(--paper) 82%, transparent); line-height: 1.8; }
+/* Roles are spaced, not dotted, so a wrap never leaves a separator hanging at a line end. */
+.nameplate p span { white-space: nowrap; margin-right: 1.4em; }
+.nameplate p .np-org { white-space: normal; margin-right: 0; }
+.nameplate a {
+  display: inline-block; margin-top: 1.4rem; padding: 0.7rem 1.1rem; border-radius: 62.4375rem;
+  color: var(--paper); background: color-mix(in srgb, var(--ink) 55%, transparent); border: 0.0625rem solid var(--copper);
+  text-decoration: none; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.nameplate a:hover { background: var(--copper); color: var(--ink); }
 
-/* Very narrow phones: the note clears the graph button. */
+/* Very narrow phones: the note clears the graph button, which drops its verb. */
 @media (max-width: 420px) {
   .note { padding-top: 3.4rem; }
+  .gb-open { display: none; }
+  .note { padding-inline: 1rem; }
+  .vault { grid-template-columns: 7.25rem minmax(0, 1fr); }
+  .tree { padding-inline: 0.5rem; font-size: 0.6875rem; }
+  .t-file { padding-left: 0.7rem; }
+  .ext, .cap-path { display: none; }
+  /* The bottom-left readouts sit above the Skip / Replay row instead of beside it. */
+  .readout, .sun-time { bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px) + 3.5rem); }
+  .note h3 { font-size: 1.25rem; }
+}
+/* Short screens: the chat, with Claude's whole reply typed out, still fits between the caption and Skip intro. */
+@media (max-height: 720px) {
+  .chat { gap: 0.7rem; }
+  .msg { padding: 0.75rem 0.95rem; font-size: 0.875rem; line-height: 1.45; }
+}
+/* Phones held sideways: the chat tightens again, and the name block compacts so it clears the golden-hour readout. */
+@media (max-height: 460px) {
+  .chat { gap: 0.45rem; }
+  #s-chat .app-cap { margin-bottom: 0; }
+  .msg { padding: 0.55rem 0.8rem; font-size: 0.8125rem; line-height: 1.4; }
+  .msg p { margin-top: 0.2rem; }
+  .flow-log { display: none; } /* no room beside the canvas; each node's tick still shows its run */
+  .nameplate h1 { font-size: clamp(2.4rem, 7vw, 3rem); }
+  .nameplate p { margin-top: 0.6rem; line-height: 1.55; }
+  .nameplate a { margin-top: 0.9rem; padding-block: 0.5rem; }
+  .note { padding: 0.9rem 1.2rem; }
+  .note h3 { font-size: 1.2rem; }
+  .note h4 { margin-top: 0.5rem; font-size: 0.95rem; }
+  .note p { font-size: 0.8125rem; margin: 0.1rem 0; }
+  .note .links { margin-top: 0.4rem; }
+}
+/* Narrow screens: Execute sits above Skip intro instead of beside it, and the run log moves under the caption. */
+@media (max-width: 600px) {
+  .exec { bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px) + 3.5rem); }
+  .flow-log { top: calc(var(--gutter) + env(safe-area-inset-top, 0px) + 3.6rem); bottom: auto; }
+}
+/* Tall screens: beside the sun there is no room for the name, so it sits in the sky above the sun instead,
+   still on the left, with the full width to itself. */
+@media (max-aspect-ratio: 4/5) {
+  .nameplate {
+    top: auto; transform: none; max-width: min(40rem, calc(100% - 2 * var(--gutter)));
+    bottom: calc(100% - var(--horizon) + var(--sun) * 0.62 + clamp(1.5rem, 4 * var(--vh), 3rem));
+  }
 }
 
 
@@ -391,7 +453,7 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .page { padding-inline: var(--gutter); padding-block: 0 4rem; max-width: 73.75rem; margin-inline: auto; }
 .block { display: grid; grid-template-columns: minmax(0, 13.75rem) minmax(0, 1fr); gap: 2rem; padding-block: 5rem; border-top: 0.0625rem solid var(--rule); }
 .block:first-child { border-top: 0; }
-.label { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--slate); padding-top: 0.5rem; }
+.label { font-family: var(--font-mono); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--slate); padding-top: 0.5rem; }
 .label i { font-style: normal; color: var(--copper-text); }
 .lede { margin: 0; font-size: clamp(1.5rem, 3.2vw, 2.3rem); line-height: 1.22; letter-spacing: -0.02em; font-weight: 300; max-width: 30ch; text-wrap: balance; }
 .lede b { font-weight: 600; }
@@ -402,7 +464,7 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .yr { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--slate); font-variant-numeric: tabular-nums; padding-top: 0.25rem; }
 .work h3 { margin: 0; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; }
 .work p { margin: 0.4rem 0 0; color: var(--slate); max-width: 58ch; }
-.kind { font-family: var(--font-mono); font-size: 0.75rem; color: var(--slate); line-height: 1.8; }
+.kind { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--slate); line-height: 1.8; }
 .kind span { display: block; }
 .metric { color: var(--ink); font-variant-numeric: tabular-nums; }
 .metric b { color: var(--copper-text); font-weight: 600; }
@@ -416,14 +478,26 @@ html.capture .playpause, html.capture .controls { display: none !important; }
 .channels { display: flex; flex-wrap: wrap; gap: 1rem 2.5rem; font-family: var(--font-mono); font-size: 0.875rem; }
 .channel { display: grid; gap: 0.35rem; min-width: 0; }
 .channel small { color: var(--mist); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.6875rem; }
-.copy-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.copy-row { display: flex; align-items: center; gap: 0.75rem 1rem; flex-wrap: wrap; }
 .addr { user-select: all; overflow-wrap: anywhere; }
 button.copy { font: inherit; font-size: 0.75rem; color: var(--ink); background: var(--copper); border: 0; padding: 0.35rem 0.8rem; border-radius: 62.4375rem; cursor: pointer; }
 button.copy:hover { background: var(--paper); }
 .contact a { text-decoration-color: var(--copper); text-underline-offset: 0.25rem; }
-.foot { font-family: var(--font-mono); font-size: 0.75rem; color: var(--mist); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; border-top: 0.0625rem solid color-mix(in srgb, var(--paper) 15%, transparent); padding-top: 1.5rem; }
+.foot { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--mist); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; border-top: 0.0625rem solid color-mix(in srgb, var(--paper) 15%, transparent); padding-top: 1.5rem; }
+/* Touch screens: every control is at least 44px tall. */
+@media (pointer: coarse) {
+  .controls button, button.copy { min-height: 2.75rem; padding-inline: 1rem; }
+  .contact a { display: inline-block; padding-block: 0.6rem; }
+}
+/* Tablets: beside the section label there's no room for three columns, so the metrics drop under the description. */
+@media (max-width: 1100px) {
+  .block { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .work li { grid-template-columns: 5.75rem minmax(0, 1fr); row-gap: 0.8rem; }
+  .work .kind { grid-column: 2; }
+}
 @media (max-width: 760px) {
-  .block { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding-block: 3.5rem; }
+  .work .kind { grid-column: auto; }
+  .block { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding-block: 2.75rem; }
   .work li { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
   .yr { padding-top: 0; }
 }
@@ -572,16 +646,16 @@ button.copy:hover { background: var(--paper); }
       <aside class="tree mono">
         <div class="t-head">second-brain</div>
         <div class="t-dir">Daily</div>
-        <div class="t-file">2026-10-06.md</div>
-        <div class="t-file">2026-10-07.md</div>
-        <div class="t-file is-active">2026-10-08.md</div>
+        <div class="t-file">2026-10-06<span class="ext">.md</span></div>
+        <div class="t-file">2026-10-07<span class="ext">.md</span></div>
+        <div class="t-file is-active">2026-10-08<span class="ext">.md</span></div>
         <div class="t-dir">Tracking</div>
-        <div class="t-file">Consent Mode.md</div>
-        <div class="t-file">sGTM.md</div>
-        <div class="t-file">n8n watchdog.md</div>
+        <div class="t-file">Consent Mode<span class="ext">.md</span></div>
+        <div class="t-file">sGTM<span class="ext">.md</span></div>
+        <div class="t-file">n8n watchdog<span class="ext">.md</span></div>
         <div class="t-dir">Motion</div>
-        <div class="t-file">Blender.md</div>
-        <div class="t-file">Reels.md</div>
+        <div class="t-file">Blender<span class="ext">.md</span></div>
+        <div class="t-file">Reels<span class="ext">.md</span></div>
       </aside>
       <article class="note" id="note">
         <h3 class="nl">2026-10-08</h3>
@@ -592,10 +666,10 @@ button.copy:hover { background: var(--paper); }
         <p class="nl">– Check: tomorrow's 18:47 run</p>
         <p class="nl links">Related: <a>[[Consent Mode]]</a> · <a>[[sGTM]]</a> · <a>[[n8n watchdog]]</a></p>
       </article>
-      <div class="graph-btn" id="graphBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M8 7.6 15.9 6.4M7.2 9 10.9 15M16.9 8 13.1 15"/></svg>Open graph view</div>
+      <div class="graph-btn" id="graphBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M8 7.6 15.9 6.4M7.2 9 10.9 15M16.9 8 13.1 15"/></svg><span class="gb-open">Open </span>graph view</div>
       <div class="graph" id="graphView"><canvas id="graphCanvas" aria-hidden="true"></canvas><div class="g-cap mono" id="gCap">graph view · <b>1</b> note</div></div>
     </div>
-    <div class="app-cap mono"><b>Obsidian</b> · second brain · Daily/2026-10-08.md <span class="tag">sample data</span></div>
+    <div class="app-cap mono"><b>Obsidian</b> · second brain<span class="cap-path"> · Daily/2026-10-08.md</span> <span class="tag">sample data</span></div>
   </div>
 
   <!-- 10. golden hour: the copper core becomes the sun; name. This is the resting frame. -->
@@ -606,11 +680,11 @@ button.copy:hover { background: var(--paper); }
     <div class="sea" id="sea" aria-hidden="true"><div class="reflect" id="reflect"></div></div>
     <div class="horizon" id="horizon" aria-hidden="true"></div>
     <div class="sun-time mono" id="sunTime" aria-hidden="true">golden hour <b>18:47</b><br>Thursday 8 October</div>
-    <div class="nameplate" id="nameplate">
+    <div class="nameplate" id="nameplate"><div id="nameIn">
       <h1>Matt <b>Klette</b></h1>
-      <p>Analytics engineer · Motion designer · Creative technologist<br>Independent · MBK Consulting Group</p>
+      <p><span>Analytics engineer</span> <span>Motion designer</span> <span>Creative technologist</span><br><span class="np-org">Independent · MBK Consulting Group</span></p>
       <a href="#work">See the work ↓</a>
-    </div>
+    </div></div>
   </div>
 
   <button type="button" class="playpause" id="playBtn" data-state="ready" aria-label="Start the intro with sound">
@@ -1582,7 +1656,10 @@ window.Techno = (() => {
     $('flow').style.transform = `translate(${W / 2 - cam.x * cam.s}px, ${Ht / 2 - cam.y * cam.s}px) scale(${cam.s})`;
   };
   const layoutFlow = () => {
-    FLOW_S = Math.min(Ht / 920, W / 760) * 0.95;
+    // Portrait: ~500 units across shows one column of nodes whole (columns are 400 apart, nodes 260 wide) at a readable size.
+    // Short landscape screens zoom in a little, keeping the tallest column (556 units) clear of the caption and Skip.
+    const fitW = W < Ht ? 500 : 760, fitH = W < Ht ? 640 : Ht < 560 ? 780 : 920;
+    FLOW_S = Math.min(Ht / fitH, W / fitW) * 0.95;
     applyCam();
   };
   const flowLog = [];
@@ -1848,8 +1925,12 @@ window.Techno = (() => {
       if (fontPx * k < MIN_LABEL_PX || labelFade <= 0.02) continue;
       g.globalAlpha = Math.min(1, a * 1.6) * (n.kind === 'leaf' ? 0.75 : 0.95) * labelFade;
       g.font = `400 ${fontPx * k}px Geist, 'Helvetica Neue', Arial, sans-serif`;
-      g.fillText(n.name, x + r + 8 * k, y);
+      // A label that would run off the right edge goes on the node's left instead.
+      const gap = r + 8 * k, flip = x + gap + g.measureText(n.name).width > w - 4;
+      g.textAlign = flip ? 'right' : 'left';
+      g.fillText(n.name, flip ? x - gap : x + gap, y);
     }
+    g.textAlign = 'left';
 
     if (graph.coreGone || age(0) < 0) { g.globalAlpha = 1; return; }
     // Once the sunset is under way the core lives behind the water, like the real sun: nothing of it is drawn below the horizon.
@@ -2277,7 +2358,8 @@ window.Techno = (() => {
     // The drop: the synth fires its sub boom, crash and chord on this exact downbeat (see SECTIONS.final.slam).
     mixAt(NAME_AT, 'final', 0.05);
     fxAt(NAME_AT - 2 * B, 'riser', 2 * B, 0.1);
-    tl.fromTo('#nameplate', { autoAlpha: 0, y: 24, scale: 1.06, transformOrigin: '0% 50%' }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, NAME_AT)
+    tl.fromTo('#nameplate', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.7, ease: 'expo.out' }, NAME_AT)
+      .fromTo('#nameIn', { y: 24, scale: 1.06, transformOrigin: '0% 50%' }, { y: 0, scale: 1, duration: 0.7, ease: 'expo.out' }, NAME_AT)
       .fromTo('#sunGlow', { scale: 1 }, { scale: 1.1, duration: 0.12, ease: 'power2.out', immediateRender: false }, NAME_AT)
       .to('#sunGlow', { scale: 1, duration: 1.4, ease: 'power2.out' }, NAME_AT + 0.12)
       .fromTo('#sunTime', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, NAME_AT + 0.4);
@@ -2310,7 +2392,8 @@ window.Techno = (() => {
       ring.classList.toggle('pp-pulse', s === 'ready');
       const labels = { ready: 'Start the intro with sound', playing: 'Pause the intro', paused: 'Resume the intro' };
       play.setAttribute('aria-label', labels[s] || '');
-      $('ppLabel').textContent = s === 'paused' ? 'Paused · click to resume' : 'Click here to start';
+      const verb = matchMedia('(pointer: coarse)').matches ? 'Tap' : 'Click';
+      $('ppLabel').textContent = s === 'paused' ? `Paused · ${verb.toLowerCase()} to resume` : `${verb} here to start`;
     };
     audio.isPlaying = () => state === 'playing';
 
